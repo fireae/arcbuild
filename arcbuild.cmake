@@ -139,4 +139,5 @@ function(arcbuild_check_cmake_version)
   endif()
 endfunction()
 
+set(ARCBUILD_ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}")
 arcbuild_check_cmake_version()

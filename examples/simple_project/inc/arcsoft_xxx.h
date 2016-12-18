@@ -20,7 +20,7 @@ typedef char MTChar;
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
+
 typedef struct
 {
     MLong lCodebase;                ///< Codebase version number

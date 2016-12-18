@@ -1,7 +1,5 @@
-#include "arcsoft_xxx.h"
-#include "foo.h"
+#include <arcsoft_xxx.h>
 
 void ASXXX_Test()
 {
-    memoryMgrTest();
 }

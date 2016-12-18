@@ -4,8 +4,8 @@ project(simple_project)
 
 ## Library
 file(GLOB_RECURSE HDRS inc/*.h)
-file(GLOB_RECURSE SRCS src/*.cpp src/*.h)
-add_library(arcsoft_xxx ${HDRS} ${SRCS})
+file(GLOB_RECURSE SRCS src/*.h src/*.c src/*.cpp)
+add_library(arcsoft_xxx SHARED ${HDRS} ${SRCS})
 target_include_directories(arcsoft_xxx PUBLIC inc)
 
 ## Sample codes
@@ -18,10 +18,6 @@ find_path(ARCBUILD_ROOT_DIR arcbuild.cmake PATHS
   ${ARCBUILD_ROOT_DIR}
   ../.. # for example projects
 )
-# list(APPEND CMAKE_MODULE_PATH
-#   ${ARCBUILD_ROOT_DIR}
-#   ${ARCBUILD_ROOT_DIR}/plugins
-# )
 
 ## Enable features
 include(${ARCBUILD_ROOT_DIR}/arcbuild.cmake)
@@ -34,10 +30,7 @@ arcbuild_define_arcsoft_sdk(
   LIBRARY arcsoft_xxx
   INCS inc/*.h
   VERSION_FILE src/version.c
+  SAMPLE_CODE samplecodes/samplecode.c
   RELEASE_NOTES releasenotes.txt
   DOCS doc/*.pdf
 )
-
-# Debug
-message(${CMAKE_C_FLAGS})
-message(${CMAKE_CXX_FLAGS})
