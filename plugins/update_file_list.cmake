@@ -46,8 +46,8 @@ function(arcbuild_update_file_list root path)
   file(WRITE "${path}" ${content})
 endfunction()
 
-include(@ARCBUILD_ROOT_DIR@/arcbuild.cmake)
+# include(@ARCBUILD_ROOT_DIR@/arcbuild.cmake)
 arcbuild_update_file_list(
-  "@CMAKE_INSTALL_PREFIX@/@package_name@"
-  "@RELEASE_NOTES_PATH@"
+  "${CMAKE_INSTALL_PREFIX}/@PACKAGE_NAME@"
+  "${CMAKE_INSTALL_PREFIX}/@PACKAGE_NAME@/@RELEASE_NOTES@"
 )

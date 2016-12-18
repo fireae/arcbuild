@@ -2,10 +2,14 @@ cmake_minimum_required(VERSION 3.0)
 
 project(simple_project)
 
+if(NOT ARCBUILD_TYPE)
+  set(ARCBUILD_TYPE SHARED)
+endif()
+
 ## Library
 file(GLOB_RECURSE HDRS inc/*.h)
 file(GLOB_RECURSE SRCS src/*.h src/*.c src/*.cpp)
-add_library(arcsoft_xxx SHARED ${HDRS} ${SRCS})
+add_library(arcsoft_xxx ${ARCBUILD_TYPE} ${HDRS} ${SRCS})
 target_include_directories(arcsoft_xxx PUBLIC inc)
 
 ## Sample codes
@@ -14,23 +18,25 @@ target_link_libraries(samplecode arcsoft_xxx)
 
 ## Enable arcbuild functions
 find_path(ARCBUILD_ROOT_DIR arcbuild.cmake PATHS
-  ${CMAKE_BINARY_DIR}/arcbuild
   ${ARCBUILD_ROOT_DIR}
-  ../.. # for example projects
+  ${CMAKE_BINARY_DIR}/arcbuild
+  ../.. # only for example projects
 )
 
-## Enable features
-include(${ARCBUILD_ROOT_DIR}/arcbuild.cmake)
-arcbuild_enable_features(cxx11 neon sse2 hidden)
+if(ARCBUILD_ROOT_DIR)
+  # Enable features
+  include(${ARCBUILD_ROOT_DIR}/arcbuild.cmake)
+  arcbuild_enable_features(cxx11 neon sse2 hidden)
 
-## Define ArcSoft SDK
-include(${ARCBUILD_ROOT_DIR}/plugins/arcsoft_sdk.cmake)
-arcbuild_define_arcsoft_sdk(
-  arcsoft_xxx
-  LIBRARY arcsoft_xxx
-  INCS inc/*.h
-  VERSION_FILE src/version.c
-  SAMPLE_CODE samplecodes/samplecode.c
-  RELEASE_NOTES releasenotes.txt
-  DOCS doc/*.pdf
-)
+  # Define ArcSoft SDK
+  include(${ARCBUILD_ROOT_DIR}/plugins/arcsoft_sdk.cmake)
+  arcbuild_define_arcsoft_sdk(
+    arcsoft_xxx
+    LIBRARY arcsoft_xxx
+    INCS inc/*.h
+    VERSION_FILE src/version.c
+    SAMPLE_CODE samplecodes/samplecode.c
+    RELEASE_NOTES releasenotes.txt
+    DOCS doc/*.pdf
+  )
+endif()
