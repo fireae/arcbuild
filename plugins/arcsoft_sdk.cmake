@@ -344,11 +344,10 @@ function(arcbuild_define_arcsoft_sdk name)
     set(install_script "${PROJECT_BINARY_DIR}/update_file_list.cmake")
     configure_file("${ARCBUILD_ROOT_DIR}/plugins/update_file_list.cmake" ${install_script} @ONLY)
     install(SCRIPT "${install_script}")
+    # debug
+    # include(${ARCBUILD_ROOT_DIR}/plugins/update_file_list.cmake)
+    # arcbuild_update_file_list("${CMAKE_INSTALL_PREFIX}/${package_name}" "${RELEASE_NOTES_PATH}")
   endif()
-
-  # debug
-  # include(${ARCBUILD_ROOT_DIR}/plugins/update_file_list.cmake)
-  # arcbuild_update_file_list("${CMAKE_INSTALL_PREFIX}/${package_name}" "${RELEASE_NOTES_PATH}")
 
   # CPack settings
   set(CPACK_PACKAGE_FILE_NAME ${package_name})
