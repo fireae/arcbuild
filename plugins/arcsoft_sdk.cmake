@@ -282,7 +282,6 @@ function(arcbuild_define_arcsoft_sdk name)
     ${ARGN}
   )
   file(GLOB A_INCS ${A_INCS})
-  file(GLOB A_DOCS ${A_DOCS})
   # get_target_property(A_SAMPLE_CODE ${A_SAMPLE_CODE} SOURCES)
   arcbuild_echo("Define ArcSoft SDK: ${name}")
   arcbuild_echo("  Target library: ${A_LIBRARY}")
@@ -306,9 +305,11 @@ function(arcbuild_define_arcsoft_sdk name)
   endif()
 
   # Update releasenotes
-  get_filename_component(rlsnote_base_name "${A_RELEASE_NOTES}" NAME)
-  set(NEW_RELEASE_NOTES_PATH "${PROJECT_BINARY_DIR}/${rlsnote_base_name}")
-  arcbuild_update_releasenotes(${name} ${NEW_RELEASE_NOTES_PATH} ${A_RELEASE_NOTES} ${version})
+  if(A_RELEASE_NOTES)
+    get_filename_component(rlsnote_base_name "${A_RELEASE_NOTES}" NAME)
+    set(NEW_RELEASE_NOTES_PATH "${PROJECT_BINARY_DIR}/${rlsnote_base_name}")
+    arcbuild_update_releasenotes(${name} ${NEW_RELEASE_NOTES_PATH} ${A_RELEASE_NOTES} ${version})
+  endif()
 
   # Package name
   arcbuild_get_build_type(build_type ${name})
@@ -321,19 +322,29 @@ function(arcbuild_define_arcsoft_sdk name)
 
   # Install targets
   set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "Install path prefix" FORCE)
+  if(MPBASE)
+    set(prefix "${package_name}/")
+  endif()
   # file(REMOVE_RECURSE "${CMAKE_INSTALL_PREFIX}")
-  install(FILES ${A_INCS} DESTINATION ${package_name}/inc)
-  install(FILES ${A_SAMPLE_CODE} DESTINATION ${package_name}/samplecode)
-  install(FILES ${A_DOCS} DESTINATION ${package_name}/doc)
-  install(FILES ${NEW_RELEASE_NOTES_PATH} DESTINATION ${package_name})
-  install(TARGETS ${A_LIBRARY} DESTINATION ${package_name}/lib/${abi_name})
+  install(FILES ${A_INCS} DESTINATION ${prefix}inc)
+  install(TARGETS ${A_LIBRARY} DESTINATION ${prefix}lib/${abi_name})
+  if(A_SAMPLE_CODE)
+    install(FILES ${A_SAMPLE_CODE} DESTINATION ${prefix}samplecode)
+  endif()
+  if(A_DOCS)
+    file(GLOB A_DOCS ${A_DOCS})
+    install(FILES ${A_DOCS} DESTINATION ${prefix}doc)
+  endif()
 
-  # Update filelist releasenotes
-  set(PACKAGE_NAME ${package_name})
-  set(RELEASE_NOTES "${rlsnote_base_name}")
-  set(install_script "${PROJECT_BINARY_DIR}/update_file_list.cmake")
-  configure_file("${ARCBUILD_ROOT_DIR}/plugins/update_file_list.cmake" ${install_script} @ONLY)
-  install(SCRIPT "${install_script}")
+  # Update file list in releasenotes
+  if(A_RELEASE_NOTES)
+    install(FILES ${NEW_RELEASE_NOTES_PATH} DESTINATION ${prefix}.)
+    set(PACKAGE_NAME ${prefix})
+    set(RELEASE_NOTES "${rlsnote_base_name}")
+    set(install_script "${PROJECT_BINARY_DIR}/update_file_list.cmake")
+    configure_file("${ARCBUILD_ROOT_DIR}/plugins/update_file_list.cmake" ${install_script} @ONLY)
+    install(SCRIPT "${install_script}")
+  endif()
 
   # debug
   # include(${ARCBUILD_ROOT_DIR}/plugins/update_file_list.cmake)
