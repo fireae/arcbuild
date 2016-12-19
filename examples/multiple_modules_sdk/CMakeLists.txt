@@ -23,11 +23,11 @@ find_path(ARCBUILD_ROOT_DIR arcbuild.cmake PATHS
   ../.. # only for example projects
 )
 
-if(ARCBUILD_ROOT_DIR)
-  # Enable features
-  include(${ARCBUILD_ROOT_DIR}/arcbuild.cmake)
-  arcbuild_enable_features(cxx11 neon sse2 hidden)
+# Enable features
+include(${ARCBUILD_ROOT_DIR}/arcbuild.cmake)
+arcbuild_enable_features(cxx11 neon sse2 hidden)
 
+if(ARCBUILD)
   # Define ArcSoft SDK
   include(${ARCBUILD_ROOT_DIR}/plugins/arcsoft_sdk.cmake)
   arcbuild_define_arcsoft_sdk(
