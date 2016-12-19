@@ -52,12 +52,8 @@ if(NOT SDK_ROOT)
   message(FATAL_ERROR "Please set SDK_ROOT variable to toolchain root directory")
 endif()
 
-# basic setup
-set(CMAKE_SYSTEM_NAME Linux)
-
 # for convenience
-set(UNIX TRUE)
-set(ANDROID TRUE)
+set(ANDROID 1)
 
 # platforms
 file(GLOB SDK_API_VERSION_SUPPORTED RELATIVE ${SDK_ROOT}/platforms "${SDK_ROOT}/platforms/android-*")
@@ -88,26 +84,26 @@ endif()
 set(SDK_ABI "${SDK_ABI}" CACHE STRING "The target ABI for Android. If arm, then armeabi-v7a is recommended for hardware floating point")
 set_property(CACHE SDK_ABI PROPERTY STRINGS ${SDK_ABI_SUPPORTED})
 
-# system info
-set(CMAKE_SYSTEM_VERSION ${SDK_API_VERSION})
-set(CMAKE_SYSTEM_PROCESSOR ${SDK_ABI})
-
 # set target ABI options
 set(SDK_ARCH ${SDK_ABI})
 if(SDK_ABI STREQUAL "armeabi")
   set(SDK_ARCH "arm")
+  set(SDK_PROCESSOR "ARM")
   set(SDK_C_FLAGS "-march=armv5te -mtune=xscale -msoft-float")
   set(SDK_LLVM_TRIPLE "armv5te-none-linux-androideabi")
 elseif(SDK_ABI STREQUAL "armeabi-v6")
-  set(SDK_ARCH "arm")
+  set(SDK_ARCH "armv6")
+  set(SDK_PROCESSOR "ARM")
   set(SDK_C_FLAGS "-march=armv6 -mfloat-abi=softfp -mfpu=vfp")
   set(SDK_LLVM_TRIPLE "armv6-none-linux-androideabi")
 elseif(SDK_ABI STREQUAL "armeabi-v7a")
-  set(SDK_ARCH "arm")
-  set(SDK_C_FLAGS "-march=armv7-a -mfloat-abi=softfp -mfpu=neon")
+  set(SDK_ARCH "armv7-a")
+  set(SDK_PROCESSOR "ARM")
+  set(SDK_C_FLAGS "-march=armv7-a -mfloat-abi=softfp -mfpu=neon -ftree-vectorize -ffast-math")
   set(SDK_LLVM_TRIPLE "armv7-none-linux-androideabi")
 elseif(SDK_ABI STREQUAL "arm64-v8a")
   set(SDK_ARCH "arm64")
+  set(SDK_PROCESSOR "ARM64")
   set(SDK_C_FLAGS "-march=armv8-a")
   set(SDK_LLVM_TRIPLE "aarch64-none-linux-androideabi")
 #elseif(SDK_ABI STREQUAL "x86")
@@ -118,19 +114,27 @@ else()
   message(FATAL_ERROR "Unsupported ABI: ${SDK_ABI}")
 endif()
 
+# system info
+set(CMAKE_SYSTEM_NAME Android)
+set(CMAKE_SYSTEM_VERSION ${SDK_API_VERSION})
+set(CMAKE_SYSTEM_PROCESSOR ${SDK_PROCESSOR})
+
+string(TOLOWER "${SDK_PROCESSOR}" SDK_PROCESSOR)
+
 # sysroot - in Android this in function of Android API and architecture
-set(CMAKE_SYSROOT "${SDK_API_ROOT}/arch-${SDK_ARCH}")
+set(CMAKE_SYSROOT "${SDK_API_ROOT}/arch-${SDK_PROCESSOR}")
 
 # toolchain
-if(SDK_ARCH STREQUAL "arm64")
-  set(SDK_ARCH_PREFIX "aarch64")
-elseif(SDK_ARCH STREQUAL "x64")
-  set(SDK_ARCH_PREFIX "x86_64")
+if(SDK_PROCESSOR STREQUAL "arm64")
+  set(SDK_TOOLCHAIN_PREFIX "aarch64")
+elseif(SDK_PROCESSOR STREQUAL "amd64")
+  set(SDK_TOOLCHAIN_PREFIX "x86_64")
+elseif(SDK_PROCESSOR MATCHES "mips")
+  set(SDK_TOOLCHAIN_PREFIX "${SDK_PROCESSOR}el")
 else()
-  set(SDK_ARCH_PREFIX ${SDK_ARCH})
+  set(SDK_TOOLCHAIN_PREFIX ${SDK_PROCESSOR})
 endif()
-file(GLOB SDK_TOOLCHAIN_SUPPORTED RELATIVE "${SDK_ROOT}/toolchains"
-  "${SDK_ROOT}/toolchains/${SDK_ARCH_PREFIX}*")
+file(GLOB SDK_TOOLCHAIN_SUPPORTED RELATIVE "${SDK_ROOT}/toolchains" "${SDK_ROOT}/toolchains/${SDK_TOOLCHAIN_PREFIX}-*")
 list(SORT SDK_TOOLCHAIN_SUPPORTED)
 list(REVERSE SDK_TOOLCHAIN_SUPPORTED)
 if(NOT SDK_TOOLCHAIN)

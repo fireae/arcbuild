@@ -24,7 +24,7 @@ endif()
 
 # basic setup
 set(CMAKE_SYSTEM_NAME Linux)
-set(CMAKE_SYSTEM_PROCESSOR ${SDK_ARCH}) # optional
+set(CMAKE_SYSTEM_PROCESSOR ARM) # optional
 
 set(TARGET_TOOLCHAIN arm-linux-gnueabi)
 

@@ -18,8 +18,8 @@ target_link_libraries(samplecode arcsoft_xxx)
 
 ## Enable arcbuild functions
 find_path(ARCBUILD_ROOT_DIR arcbuild.cmake PATHS
-  ${ARCBUILD_ROOT_DIR}
-  ${CMAKE_BINARY_DIR}/arcbuild
+  "${ARCBUILD_ROOT_DIR}"
+  "${CMAKE_BINARY_DIR}/arcbuild"
   ../.. # only for example projects
 )
 
