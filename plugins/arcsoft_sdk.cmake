@@ -277,12 +277,12 @@ function(arcbuild_define_arcsoft_sdk name)
   file(GLOB A_INCS ${A_INCS})
   # get_target_property(A_SAMPLE_CODE ${A_SAMPLE_CODE} SOURCES)
   arcbuild_echo("Define ArcSoft SDK: ${name}")
-  arcbuild_echo("  Target library: ${A_LIBRARY}")
-  arcbuild_echo("  Include headers: ${A_INCS}")
-  arcbuild_echo("  Version file: ${A_VERSION_FILE}")
-  arcbuild_echo("  Sample code: ${A_SAMPLE_CODE}")
-  arcbuild_echo("  Relasenotes: ${A_RELEASE_NOTES}")
-  arcbuild_echo("  Docs: ${A_DOCS}")
+  arcbuild_echo("- Target library: ${A_LIBRARY}")
+  arcbuild_echo("- Include headers: ${A_INCS}")
+  arcbuild_echo("- Version file: ${A_VERSION_FILE}")
+  arcbuild_echo("- Sample code: ${A_SAMPLE_CODE}")
+  arcbuild_echo("- Relasenotes: ${A_RELEASE_NOTES}")
+  arcbuild_echo("- Docs: ${A_DOCS}")
 
   # Combine more dependencies into one target
   arcbuild_combine_target(${name})
@@ -300,13 +300,6 @@ function(arcbuild_define_arcsoft_sdk name)
     arcbuild_update_version_file(${name} ${A_VERSION_FILE} ${version})
   endif()
 
-  # Update releasenotes
-  if(A_RELEASE_NOTES)
-    get_filename_component(rlsnote_base_name "${A_RELEASE_NOTES}" NAME)
-    set(NEW_RELEASE_NOTES_PATH "${PROJECT_BINARY_DIR}/${rlsnote_base_name}")
-    arcbuild_update_releasenotes(${name} ${NEW_RELEASE_NOTES_PATH} ${A_RELEASE_NOTES} ${version})
-  endif()
-
   # Package name
   arcbuild_get_build_type(build_type ${name})
   arcbuild_get_package_name(package_name ${name} ${version} ${build_type})
@@ -318,23 +311,38 @@ function(arcbuild_define_arcsoft_sdk name)
 
   # Install targets
   set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "Install path prefix" FORCE)
+
   if(MPBASE)
     set(prefix "${package_name}/")
+    get_target_property(MPBASE_INCLUDE_DIR mpbase INTERFACE_INCLUDE_DIRECTORIES)
+    get_target_property(MPBASE_LIBRARY mpbase LOCATION)
+    install(DIRECTORY "${MPBASE_INCLUDE_DIR}" DESTINATION "PLATFORM")
+    install(FILES "${MPBASE_LIBRARY}" DESTINATION "PLATFORM/lib")
+    install(FILES "${MPBASE}/releasenotes.txt" DESTINATION "PLATFORM")
   endif()
+
   # file(REMOVE_RECURSE "${CMAKE_INSTALL_PREFIX}")
-  install(FILES ${A_INCS} DESTINATION ${prefix}inc)
-  install(TARGETS ${A_LIBRARY} DESTINATION ${prefix}lib/${abi_name})
+  install(FILES ${A_INCS} DESTINATION "${prefix}inc")
+  install(TARGETS ${A_LIBRARY} DESTINATION "${prefix}lib/${abi_name}")
   if(A_SAMPLE_CODE)
-    install(FILES ${A_SAMPLE_CODE} DESTINATION ${prefix}samplecode)
+    install(FILES ${A_SAMPLE_CODE} DESTINATION "${prefix}samplecode")
   endif()
   if(A_DOCS)
     file(GLOB A_DOCS ${A_DOCS})
-    install(FILES ${A_DOCS} DESTINATION ${prefix}doc)
+    install(FILES ${A_DOCS} DESTINATION "${prefix}doc")
   endif()
 
-  # Update file list in releasenotes
+  # Install prebuilt libraries
+  arcbuild_install_prebuilt_libraries(${name} "${prefix}lib/${abi_name}")
+
+  # Update releasenotes
   if(A_RELEASE_NOTES)
-    install(FILES ${NEW_RELEASE_NOTES_PATH} DESTINATION ${prefix}.)
+    get_filename_component(rlsnote_base_name "${A_RELEASE_NOTES}" NAME)
+    set(NEW_RELEASE_NOTES_PATH "${PROJECT_BINARY_DIR}/${rlsnote_base_name}")
+    arcbuild_update_releasenotes(${name} ${NEW_RELEASE_NOTES_PATH} ${A_RELEASE_NOTES} ${version})
+    install(FILES ${NEW_RELEASE_NOTES_PATH} DESTINATION "${prefix}.")
+
+    # Update file list in releasenotes
     set(PACKAGE_NAME ${prefix})
     set(RELEASE_NOTES "${rlsnote_base_name}")
     set(install_script "${PROJECT_BINARY_DIR}/update_file_list.cmake")
