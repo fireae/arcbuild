@@ -1,16 +1,16 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(SIMPLE_SDK)
+project(MULTIPLE_MODULES_SDK)
 
-if(NOT ARCBUILD_TYPE)
-  set(ARCBUILD_TYPE SHARED)
-endif()
+## Modules
+add_subdirectory(modules)
 
 ## Library
 file(GLOB_RECURSE HDRS inc/*.h)
 file(GLOB_RECURSE SRCS src/*.h src/*.c src/*.cpp)
 add_library(arcsoft_xxx ${ARCBUILD_TYPE} ${HDRS} ${SRCS})
 target_include_directories(arcsoft_xxx PUBLIC inc)
+target_link_libraries(arcsoft_xxx bar)
 
 ## Sample codes
 add_executable(samplecode samplecodes/samplecode.c)

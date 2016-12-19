@@ -110,13 +110,6 @@ function(arcbuild_get_build_type var_name name)
 endfunction()
 
 
-function(join var_name sep)
-  string(REGEX REPLACE "([^\\]|^);" "\\1${sep}" result "${ARGN}")
-  string(REGEX REPLACE "[\\](.)" "\\1" result "${result}") #fixes escaping
-  set(${var_name} "${result}" PARENT_SCOPE)
-endfunction()
-
-
 function(arcbuild_get_abi_name var_name)
   arcbuild_get_platform_code(platform)
   arcbuild_get_arch_code(arch)
@@ -290,6 +283,9 @@ function(arcbuild_define_arcsoft_sdk name)
   arcbuild_echo("  Sample code: ${A_SAMPLE_CODE}")
   arcbuild_echo("  Relasenotes: ${A_RELEASE_NOTES}")
   arcbuild_echo("  Docs: ${A_DOCS}")
+
+  # Combine more dependencies into one target
+  arcbuild_combine_target(${name})
 
   # Get version
   if(A_RELEASE_NOTES)
