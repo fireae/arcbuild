@@ -12,9 +12,9 @@ file(GLOB_RECURSE SRCS src/*.h src/*.c src/*.cpp)
 add_library(arcsoft_xxx ${ARCBUILD_TYPE} ${HDRS} ${SRCS})
 target_include_directories(arcsoft_xxx PUBLIC inc)
 
-## Sample codes
-add_executable(samplecode samplecodes/samplecode.c)
-target_link_libraries(samplecode arcsoft_xxx)
+## Sample codes (disabled and create automatically in arcbuild_define_arcsoft_sdk)
+# add_executable(samplecode samplecodes/samplecode.c)
+# target_link_libraries(samplecode arcsoft_xxx)
 
 # Enable arcbuild functions
 include(arcbuild.cmake)

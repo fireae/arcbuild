@@ -28,7 +28,7 @@ if(ARCBUILD)
     LIBRARY arcsoft_xxx
     INCS inc/*.h
     VERSION_FILE src/version.c
-    SAMPLE_CODE samplecodes/samplecode.c
+    SAMPLE_CODE samplecode
     RELEASE_NOTES releasenotes.txt
     DOCS doc/*.pdf
   )
