@@ -216,7 +216,6 @@ function(arcbuild_get_compile_flags var_name name)
   foreach(flag ${flags})
   endforeach()
   string(STRIP ${flags} flags)
-  # message(${flags})
 
   # Remove duplicates flags
   string(REGEX REPLACE "[ \t]+" ";" flags "${flags}")
@@ -242,7 +241,6 @@ function(arcbuild_update_releasenotes name new_path path version)
   string(REGEX REPLACE "(Supported platforms:[ \r\n]+)[^\r\n]+" "\\1${platform}_${arch}" content "${content}")
   string(REGEX REPLACE "(Compile Option:[ \r\n]+)[^\r\n]+" "\\1${flags}" content "${content}")
   file(WRITE ${new_path} "${content}")
-  # message(${content})
 endfunction()
 
 function(arcbuild_get_version_from_release_notes path vv_major vv_minor vv_build)

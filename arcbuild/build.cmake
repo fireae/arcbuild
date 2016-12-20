@@ -4,18 +4,26 @@ function(arcbuild_set_from_env)
   foreach(name ${ARGN})
     set(env_value "$ENV{${name}}")
     if(env_value)
-      message("${name}: ${env_value}")
       set(${name} "${env_value}" PARENT_SCOPE)
     endif()
   endforeach()
 endfunction()
 
-function(arcbuild_set_to_env)
+function(arcbuild_add_env)
   foreach(name ${ARGN})
     if(${name})
       set(ENV{${name}} "${${name}}")
+      list(APPEND appended_items ${name})
     endif()
   endforeach()
+  set(ARCBUILD_ENV_VARIABLES ${ARCBUILD_ENV_VARIABLES} ${appended_items} PARENT_SCOPE)
+endfunction()
+
+function(arcbuild_clean_env)
+  foreach(name ${ARCBUILD_ENV_VARIABLES})
+    unset(ENV{${name}})
+  endforeach()
+  unset(ARCBUILD_ENV_VARIABLES PARENT_SCOPE)
 endfunction()
 
 function(arcbuild_set_from_short_var prefix)
@@ -108,13 +116,13 @@ function(arcbuild_build)
   # Parse arguments
 
   # Read from environment variables
-  arcbuild_set_from_env(ARCBUILD_TYPE ARCBUILD_PLATFORM ARCBUILD_SDK ARCBUILD_VERSION ARCBUILD_SUFFIX)
-  arcbuild_set_from_env(SDK_ROOT SDK_ARCH SDK_API_VERSION)
-  arcbuild_set_from_env(MPABSE_DIR MPABSE_ROOT MPABSE_VERSION)
+  # arcbuild_set_from_env(ARCBUILD_TYPE ARCBUILD_PLATFORM ARCBUILD_SDK ARCBUILD_VERSION ARCBUILD_SUFFIX)
+  # arcbuild_set_from_env(SDK_ROOT SDK_ARCH SDK_API_VERSION)
+  # arcbuild_set_from_env(MPABSE_DIR MPABSE_ROOT MPABSE_VERSION)
 
   # Write to short variables
-  arcbuild_set_to_short_var(ARCBUILD TYPE PLATFORM SDK VERBOSE)
-  arcbuild_set_to_short_var(SDK ROOT ARCH API_VERSION STL)
+  # arcbuild_set_to_short_var(ARCBUILD TYPE PLATFORM SDK VERBOSE)
+  # arcbuild_set_to_short_var(SDK ROOT ARCH API_VERSION STL)
 
   # Verbose
   if(NOT VERBOSE)
@@ -175,7 +183,7 @@ function(arcbuild_build)
 
   # BINARY_DIR
   if(NOT BINARY_DIR)
-    set(BINARY_DIR "_arcbuild")
+    set(BINARY_DIR "_build")
   endif()
 
   # Get toolchain file
@@ -214,7 +222,7 @@ function(arcbuild_build)
   arcbuild_set_from_short_var(CMAKE TOOLCHAIN_FILE MAKE_PROGRAM VERBOSE_MAKEFILE C_FLAGS CXX_FLAGS BUILD_TYPE)
 
   # Set environment variables for toolchains
-  arcbuild_set_to_env(SDK_ROOT SDK_ARCH SDK_API_VERSION SDK_STL)
+  arcbuild_add_env(SDK_ROOT SDK_ARCH SDK_API_VERSION SDK_STL)
 
   if(LINK_FLAGS)
     arcbuild_append_link_flags(${LINK_FLAGS})
@@ -298,6 +306,7 @@ function(arcbuild_build)
     COMMAND ${MAKE_CMD} package
     WORKING_DIRECTORY "${BINARY_DIR}"
   )
+  arcbuild_clean_env()
 
   # Copy SDK's to current work directory
   file(GLOB zips "${BINARY_DIR}/*.zip")

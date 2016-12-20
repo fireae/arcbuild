@@ -18,8 +18,6 @@ upgrade.cmake)
   foreach(name
 android-ndk.cmake
 ctc.cmake
-first-clang.cmake
-first-gcc.cmake
 gcc-arm-linux.cmake
 gcc-linux-sysroot.cmake
 gcc-version.cmake
