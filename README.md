@@ -60,15 +60,37 @@ endif()
 
 ### Build SDK
 
+#### Build for Android (`ARCH=armv7-a` by default)
+
 ```shell
-cmake -D_BUILD=ON -DSOURCE_DIR=. -DBINARY_DIR=_build -DROOT="E:\NDK\android-ndk-r11b" -DTYPE=SHARED -DPLATFORM=android -DARCH=armv7-a -DVERBOSE=1 -P arcbuild.cmake
+cmake -D_BUILD=ON -DPLATFORM=android -DROOT="E:\NDK\android-ndk-r11b" -P arcbuild.cmake
 ```
+
+#### Build for VS2015 (`ARCH=x86` by default)
+
+```shell
+cmake -D_BUILD=ON -DPLATFORM=vs2015 -P arcbuild.cmake
+```
+
+#### Build for Linux (`ARCH=x86` by default)
+
+```shell
+cmake -D_BUILD=ON -DPLATFORM=linux -P arcbuild.cmake
+```
+
+#### Build for iOS (`ARCH="armv7;armv7s;arm64"` by default)
+
+```shell
+cmake -D_BUILD=ON -DPLATFORM=ios -P arcbuild.cmake
+```
+
 
 ## Example Projects
 
 - [simple_sdk](examples/simple_sdk): simple SDK without dependency
 - [simple_sdk_with_mpbase](examples/simple_sdk_with_mpbase): simple SDK with only mpbase dependency
 - [multiple_modules_sdk](examples/multiple_modules_sdk): SDK with multiple modules and no mpbase dependency
+- [local_arcbuild](examples/local_arcbuild): project with local `arcbuild.cmake` and latest build scripts will be download when `_arbuild` directory does not existed.
 
 
 ## Upgrade
