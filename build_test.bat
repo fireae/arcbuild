@@ -1,7 +1,8 @@
 @echo off
-SET SDK_ROOT=E:\NDK\android-ndk-r11b
 SET PATH=%PATH%;%ProgramFiles(x86)%\CMake\bin
+REM DEL /F /S /Q _build
 FOR %%A IN (simple_sdk simple_sdk_with_mpbase multiple_modules_sdk) DO (
-    cmake -DSOURCE_DIR=examples/%%A -DBINARY_DIR=_build/%%A -DTYPE=SHARED -DPLATFORM=android -DARCH=armv7-a -DVERBOSE=1 -D_BUILD=ON -P arcbuild.cmake
+    REM cmake -D_BUILD=ON -DPLATFORM=android -DTYPE=SHARED -DROOT=E:\NDK\android-ndk-r11b -DSOURCE_DIR=examples/%%A -DBINARY_DIR=_build/%%A -P arcbuild.cmake
+    cmake -D_BUILD=ON -DPLATFORM=vs2015 -DTYPE=SHARED -DSOURCE_DIR=examples/%%A -DBINARY_DIR=_build/%%A -DSUFFIX=_%%A -P arcbuild.cmake
 )
 pause

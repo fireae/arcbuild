@@ -55,7 +55,10 @@ function(arcbuild_get_toolchain var_name platform)
   elseif(platform MATCHES "^tizen")
     set(path "tizen1.0.cmake")
   endif()
-  set(${var_name} ${path} PARENT_SCOPE)
+  if(path)
+    get_filename_component(path "${path}" ABSOLUTE)
+    set(${var_name} ${path} PARENT_SCOPE)
+  endif()
 endfunction()
 
 function(arcbuild_get_make_program var_name platform root)
@@ -68,25 +71,114 @@ function(arcbuild_get_make_program var_name platform root)
   elseif(platform MATCHES "windows")
     file(GLOB path "${root}/bin/nmake.exe")
   endif()
+  get_filename_component(path "${path}" ABSOLUTE)
   set(${var_name} ${path} PARENT_SCOPE)
 endfunction()
 
+function(arcbuild_get_vc_root var_name sdk)
+  if(sdk STREQUAL "vs2012")
+    set(path "$ENV{VS110COMNTOOLS}/../../VC")
+  elseif(sdk STREQUAL "vs2013")
+    set(path "$ENV{VS120COMNTOOLS}/../../VC")
+  elseif(sdk STREQUAL "vs2015")
+    set(path "$ENV{VS140COMNTOOLS}/../../VC")
+  else()
+    arcbuild_error("Unknown VC SDK: ${sdk}")
+  endif()
+  get_filename_component(path "${path}" ABSOLUTE)
+  file(TO_NATIVE_PATH "${path}" path)
+  set(${var_name} ${path} PARENT_SCOPE)
+endfunction()
+
+function(arcbuild_get_vc_env_run var_name root arch)
+  if(arch STREQUAL "arm")
+    set(arch "x86_arm")
+  elseif(arch STREQUAL "arm64")
+    set(arch "amd64_arm")
+  elseif(arch STREQUAL "x64")
+    set(arch "amd64")
+  endif()
+  set(cmd "${root}\\vcvarsall.bat" ${arch})
+  set(${var_name} ${cmd} PARENT_SCOPE)
+endfunction()
+
+
 function(arcbuild_build)
+  ##############################
+  # Parse arguments
+
   # Read from environment variables
   arcbuild_set_from_env(CMAKE_SOURCE_DIR CMAKE_BINARY_DIR CMAKE_TOOLCHAIN_FILE CMAKE_MAKE_PROGRAM)
-  arcbuild_set_from_env(ARCBUILD_TYPE ARCBUILD_PLATFORM ARCBUILD_SDK ARCBUILD_VERSION)
-  arcbuild_set_from_env(SDK_ROOT SDK_ARCH)
+  arcbuild_set_from_env(ARCBUILD_TYPE ARCBUILD_PLATFORM ARCBUILD_SDK ARCBUILD_VERSION ARCBUILD_SUFFIX)
+  arcbuild_set_from_env(SDK_ROOT SDK_ARCH SDK_API_VERSION)
   arcbuild_set_from_env(MPABSE_DIR MPABSE_ROOT MPABSE_VERSION)
 
   # Read from cmake variables
-  arcbuild_set_from_short_var(ARCBUILD TYPE PLATFORM SDK VERBOSE)
-  arcbuild_set_from_short_var(SDK ROOT ARCH)
+  arcbuild_set_from_short_var(ARCBUILD TYPE PLATFORM SDK VERBOSE SUFFIX)
+  arcbuild_set_from_short_var(SDK ROOT ARCH API_VERSION)
   arcbuild_set_from_short_var(CMAKE SOURCE_DIR BINARY_DIR TOOLCHAIN_FILE MAKE_PROGRAM)
 
   # Write to short variables
   arcbuild_set_to_short_var(ARCBUILD TYPE PLATFORM SDK VERBOSE)
   arcbuild_set_to_short_var(SDK ROOT ARCH)
   arcbuild_set_to_short_var(CMAKE SOURCE_DIR BUILD_DIR TOOLCHAIN_FILE MAKE_PROGRAM)
+
+  # Verbose
+  if(NOT VERBOSE)
+    set(VERBOSE 1)
+  endif()
+  if(VERBOSE GREATER 1)
+    set(VERBOSE_MAKEFILE 1)
+  endif()
+  arcbuild_set_from_short_var(ARCBUILD VERBOSE)
+
+  ##############################
+  # Default values
+  if(NOT PLATFORM)
+    arcbuild_error("Please set target platform, e.g. -DPLATFORM=android")
+  endif()
+
+  # PLATFORM & SDK
+  if(PLATFORM MATCHES "^(vc|vs)[0-9]+")
+    set(SDK ${PLATFORM})
+    set(PLATFORM "windows")
+  endif()
+
+  # ARCH
+  if(NOT ARCH)
+    if(PLATFORM MATCHES "^(windows|linux|mac)$")
+      set(ARCH "x86")
+    elseif(PLATFORM MATCHES "^(android|tizen)$")
+      set(ARCH "armv7-a")
+    elseif(PLATFORM MATCHES "^(ios)$")
+      set(ARCH "armv7;armv7s;arm64")
+    endif()
+  endif()
+
+  # VC ROOT
+  if(PLATFORM STREQUAL "windows" AND NOT ROOT)
+    arcbuild_get_vc_root(ROOT "${SDK}")
+    arcbuild_get_vc_env_run(VC_ENV_RUN "${ROOT}" "${ARCH}")
+  endif()
+
+  # API_VERSION
+  if(PLATFORM STREQUAL "android" AND NOT API_VERSION)
+    if(ARCH STREQUAL "arm64")
+      set(API_VERSION "android-21")
+    else()
+      set(API_VERSION "android-9")
+    endif()
+  endif()
+
+  # SOURCE_DIR
+  if(NOT SOURCE_DIR)
+    set(SOURCE_DIR ".")
+  endif()
+
+  # BINARY_DIR
+  if(NOT BINARY_DIR)
+    set(BINARY_DIR "_arcbuild")
+  endif()
 
   # Get toolchain file
   if(NOT TOOLCHAIN_FILE)
@@ -97,7 +189,7 @@ function(arcbuild_build)
   endif()
 
   # Get make program
-  arcbuild_get_make_program(MAKE_PROGRAM ${PLATFORM} ${ROOT})
+  arcbuild_get_make_program(MAKE_PROGRAM ${PLATFORM} "${ROOT}")
   if(MAKE_PROGRAM MATCHES "nmake")
     set(CMAKE_GENERATOR "NMake Makefiles")
   else()
@@ -105,42 +197,80 @@ function(arcbuild_build)
   endif()
 
   # Get binary direcotry
-  if(NOT BINARY_DIR)
-    set(BINARY_DIR "_arcbuild")
-  endif()
-  set(BINARY_DIR "${BINARY_DIR}/${SDK_ARCH}")
-  string(REPLACE ";" "_" BINARY_DIR "${BINARY_DIR}")
+  string(REPLACE ";" "_" ARCH_JOIN "${ARCH}")
+  set(BINARY_DIR "${BINARY_DIR}/${ARCH_JOIN}")
 
+  ##############################
   # Print information
-  foreach(name TYPE PLATFORM ARCH SDK ROOT SOURCE_DIR BINARY_DIR TOOLCHAIN_FILE MAKE_PROGRAM CMAKE_GENERATOR)
-    arcbuild_echo("- ${name}: ${${name}}")
+  arcbuild_echo("Building information:")
+  foreach(name TYPE PLATFORM ARCH SDK ROOT API_VERSION SOURCE_DIR BINARY_DIR TOOLCHAIN_FILE
+               MAKE_PROGRAM CMAKE_GENERATOR VC_ENV_RUN)
+    if(${name})
+      arcbuild_echo("- ${name}: ${${name}}")
+    endif()
   endforeach()
+
+  ##############################
+  # Build and pack
 
   get_filename_component(SOURCE_DIR "${SOURCE_DIR}" ABSOLUTE)
   get_filename_component(BINARY_DIR "${BINARY_DIR}" ABSOLUTE)
-
   if(NOT IS_DIRECTORY "${BINARY_DIR}")
     file(MAKE_DIRECTORY "${BINARY_DIR}")
   endif()
-  execute_process(COMMAND
-    cmake
+
+  # Remove old SDK's
+  file(GLOB zips "${BINARY_DIR}/*.zip")
+  if(zips)
+    arcbuild_warn("Removing: ${zips}")
+    file(REMOVE "${zips}")
+  endif()
+
+  # Build & pack
+  set(CMAKE_CMD cmake)
+  set(MAKE_CMD ${MAKE_PROGRAM})
+  if(VC_ENV_RUN)
+    list(GET VC_ENV_RUN 0 VCVARS_BAT)
+    list(GET VC_ENV_RUN 1 VC_ARCH)
+    list(INSERT CMAKE_CMD 0 ${VC_ENV_RUN} &&)
+    list(INSERT MAKE_CMD 0 ${VC_ENV_RUN} &&)
+  endif()
+  execute_process(
+    COMMAND ${CMAKE_CMD}
     "${SOURCE_DIR}"
     -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
+    -DCMAKE_MAKE_PROGRAM=${MAKE_PROGRAM}
+    -DCMAKE_VERBOSE_MAKEFILE=${VERBOSE_MAKEFILE}
+
     -G${CMAKE_GENERATOR}
-    -DARCBUILD_ROOT_DIR=${ARCBUILD_ROOT_DIR}
-    -DARCBUILD_VERBOSE=${VERBOSE}
-    -DARCBUILD_TYPE=${ARCBUILD_TYPE}
     -DARCBUILD=1
-    -DSDK_ROOT=${SDK_ROOT}
-    -DSDK_ARCH=${SDK_ARCH}
+    -DARCBUILD_VERBOSE=${VERBOSE}
+    -DARCBUILD_TYPE=${TYPE}
+    -DARCBUILD_SUFFIX=${SUFFIX}
+
+    -DSDK_ROOT=${ROOT}
+    -DSDK_ARCH=${ARCH}
+    -DSDK_API_VERSION=${API_VERSION}
+
     -DMPBASE_DIR=${MPBASE_DIR}
     -DMPBASE_ROOT=${MPBASE_ROOT}
     -DMPBASE_VERSION=${MPBASE_VERSION}
-    -DCMAKE_MAKE_PROGRAM=${MAKE_PROGRAM}
+
     WORKING_DIRECTORY "${BINARY_DIR}"
   )
-  execute_process(COMMAND
-    "${MAKE_PROGRAM}" package
+  execute_process(
+    COMMAND ${MAKE_CMD} package
     WORKING_DIRECTORY "${BINARY_DIR}"
   )
+
+  # Copy SDK's to current work directory
+  file(GLOB zips "${BINARY_DIR}/*.zip")
+  if(zips)
+    get_filename_component(current_directory "." ABSOLUTE)
+    arcbuild_echo("Copy SDK's to ${current_directory}")
+    foreach(zip ${zips})
+      arcbuild_echo("- ${zip}")
+      execute_process(COMMAND cmake -E copy "${zip}" "${current_directory}")
+    endforeach()
+  endif()
 endfunction()
