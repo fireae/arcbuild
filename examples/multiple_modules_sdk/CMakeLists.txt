@@ -16,10 +16,8 @@ target_link_libraries(arcsoft_xxx bar)
 add_executable(samplecode samplecodes/samplecode.c)
 target_link_libraries(samplecode arcsoft_xxx)
 
-## Enable arcbuild functions
+# Enable arcbuild functions
 include(../../arcbuild.cmake)
-
-# Enable features
 arcbuild_enable_features(cxx11 neon sse2 hidden)
 
 if(ARCBUILD)
