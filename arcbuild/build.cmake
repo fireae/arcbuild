@@ -131,7 +131,7 @@ function(arcbuild_build)
     arcbuild_error("Please set target platform, e.g. -DPLATFORM=android")
   endif()
 
-  # PLATFORM & SDK
+  # PLATFORM & SDK for vc
   if(PLATFORM MATCHES "^(vc|vs)[0-9]+")
     set(SDK ${PLATFORM})
     set(PLATFORM "windows")
@@ -208,6 +208,13 @@ function(arcbuild_build)
   arcbuild_set_from_short_var(CMAKE TOOLCHAIN_FILE MAKE_PROGRAM VERBOSE_MAKEFILE C_FLAGS CXX_FLAGS)
   if(LINK_FLAGS)
     arcbuild_append_link_flags(${LINK_FLAGS})
+  endif()
+  if(NOT PLATFORM STREQUAL "windows" AND ARCH MATCHES "^(x86|x64)$")
+    if(ARCH STREQUAL "x86")
+      arcbuild_append_c_flags("-m32")
+    elseif(ARCH STREQUAL "x64")
+      arcbuild_append_c_flags("-m64")
+    endif()
   endif()
   set(cmake_args)
   foreach(name
