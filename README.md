@@ -3,19 +3,38 @@
 Pure cmake scripts for native and cross compiling building of ArcSoft SDK.
 The previous version is [arcbuild](http://172.17.10.213/lny1856/arcbuild).
 
-## Example Projects
 
-- [simple_sdk](examples/simple_sdk): simple SDK without dependency
-- [simple_sdk_with_mpbase](examples/simple_sdk_with_mpbase): simple SDK with only mpbase dependency
-- [multiple_modules_sdk](examples/multiple_modules_sdk): SDK with multiple modules and no mpbase dependency
+## Features
+
+- Integration is light! Only need to add ONLY ONE file (`arcbuild.cmake`) to your CMake project.
+- Pure CMake scripts and no other dependencies.
+- Support major platforms and system architectres of ArcSoft SDK, e.g. `win32`, `linux`, `android`, `ios`, `tizen`, etc.
+- Support CMake library depended on multiple modules. All modules will be combined into one library automatically when building SDK.
+- Extract version numbers from release notes.
+- Update version file with date, version numbers and platform number.
+- Generating meta informations in release notes, including publish date, version, platform, compile flags and file list.
+- Import `mpbase` prebuilt into your CMake project easily by adding `include(${ARCBUILD_DIR}/mpbase.cmake)`.
+- Install or pack SDK by `make install` and `make package` commands.
+
+
+## Dependencies
+
+- [CMake](http://cmake.org/) >= 3.0
 
 
 ## Usage
 
 1. Download `arcbuild.cmake` to root directory of your CMake project.
 2. Define SDK in your `CMakeLists.txt` according to your project.
+3. Build SDK by runing `cmake -D_BUILD=ON -P arcbuild.cmake`.
 
 ```cmake
+# Define library
+file(GLOB_RECURSE HDRS inc/*.h)
+file(GLOB_RECURSE SRCS src/*.h src/*.c src/*.cpp)
+add_library(arcsoft_xxx ${ARCBUILD_TYPE} ${HDRS} ${SRCS}) # NOTE: ${ARCBUILD_TYPE}
+target_include_directories(arcsoft_xxx PUBLIC inc)
+
 # Enable arcbuild functions
 include(arcbuild.cmake)
 arcbuild_enable_features(cxx11 neon sse2 hidden)
@@ -39,12 +58,19 @@ if(ARCBUILD)
 endif()
 ```
 
-3. Build SDK's
+### Build SDK
+
 ```shell
 cmake -D_BUILD=ON -DSOURCE_DIR=. -DBINARY_DIR=_build -DROOT="E:\NDK\android-ndk-r11b" -DTYPE=SHARED -DPLATFORM=android -DARCH=armv7-a -DVERBOSE=1 -P arcbuild.cmake
 ```
 
+## Example Projects
+
+- [simple_sdk](examples/simple_sdk): simple SDK without dependency
+- [simple_sdk_with_mpbase](examples/simple_sdk_with_mpbase): simple SDK with only mpbase dependency
+- [multiple_modules_sdk](examples/multiple_modules_sdk): SDK with multiple modules and no mpbase dependency
+
 
 ## Upgrade
 
-Delete the `_arcbuild` directory, then the build system will be upgraded automatically.
+Delete the `_arcbuild` directory in project root directory, then the build system will be upgraded automatically.
