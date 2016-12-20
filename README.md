@@ -96,3 +96,9 @@ cmake -D_BUILD=ON -DPLATFORM=ios -P arcbuild.cmake
 ## Upgrade
 
 Delete the `_arcbuild` directory in project root directory, then the build system will be upgraded automatically.
+
+
+## TODO
+
+- Add doc for `arcbuild_define_arcsoft_sdk`.
+- Add doc for `cmake -P arcbuild.cmake`.
