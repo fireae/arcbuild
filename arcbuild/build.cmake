@@ -114,7 +114,7 @@ function(arcbuild_build)
 
   # Write to short variables
   arcbuild_set_to_short_var(ARCBUILD TYPE PLATFORM SDK VERBOSE)
-  arcbuild_set_to_short_var(SDK ROOT ARCH)
+  arcbuild_set_to_short_var(SDK ROOT ARCH API_VERSION STL)
 
   # Verbose
   if(NOT VERBOSE)
@@ -189,6 +189,7 @@ function(arcbuild_build)
   # Get make program
   arcbuild_get_make_program(MAKE_PROGRAM ${PLATFORM} "${ROOT}")
   if(MAKE_PROGRAM MATCHES "nmake")
+    unset(ROOT) # USELESS for vc
     set(CMAKE_GENERATOR "NMake Makefiles")
   else()
     set(CMAKE_GENERATOR "Unix Makefiles")
@@ -209,8 +210,12 @@ function(arcbuild_build)
 
   # Set from short variables
   arcbuild_set_from_short_var(ARCBUILD TYPE PLATFORM SDK VERBOSE SUFFIX)
-  arcbuild_set_from_short_var(SDK ROOT ARCH API_VERSION)
+  arcbuild_set_from_short_var(SDK ROOT ARCH API_VERSION STL)
   arcbuild_set_from_short_var(CMAKE TOOLCHAIN_FILE MAKE_PROGRAM VERBOSE_MAKEFILE C_FLAGS CXX_FLAGS BUILD_TYPE)
+
+  # Set environment variables for toolchains
+  arcbuild_set_to_env(SDK_ROOT SDK_ARCH SDK_API_VERSION SDK_STL)
+
   if(LINK_FLAGS)
     arcbuild_append_link_flags(${LINK_FLAGS})
   endif()
@@ -230,6 +235,7 @@ function(arcbuild_build)
     SDK_ROOT
     SDK_ARCH
     SDK_API_VERSION
+    SDK_STL
 
     CMAKE_BUILD_TYPE
     CMAKE_C_FLAGS

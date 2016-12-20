@@ -7,10 +7,10 @@
 # SDK_ROOT = automatic (default:xcode-select --print-path) or /path/to/Content/Developer
 #   $ xcode-select --print-path
 #
-# SDK_API_VERSION = empty (default:oldest) or 6.1|7.1|8.1
-#
 # SDK_ARCH = empty (default:armv7;armv7s) or armv6;armv7;armv7s;arm64
 #   set the architecture for iOS - sets armv6;armv7;armv7s;arm64 and appears to be XCode's standard.
+#
+# SDK_API_VERSION = empty (default:oldest) or 6.1|7.1|8.1
 #
 
 # cross compiling setup
@@ -79,9 +79,9 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 # compiler
 set(CMAKE_C_COMPILER   ${OSX_TOOLCHAIN_ROOT}/usr/bin/clang)
 set(CMAKE_CXX_COMPILER ${OSX_TOOLCHAIN_ROOT}/usr/bin/clang++)
-include(CMakeForceCompiler)
-cmake_force_c_compiler(${CMAKE_C_COMPILER} Clang)
-cmake_force_cxx_compiler(${CMAKE_CXX_COMPILER} Clang)
+# include(CMakeForceCompiler)
+# cmake_force_c_compiler(${CMAKE_C_COMPILER} Clang)
+# cmake_force_cxx_compiler(${CMAKE_CXX_COMPILER} Clang)
 
 # default to searching for frameworks first
 set (CMAKE_FIND_FRAMEWORK FIRST)

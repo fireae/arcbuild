@@ -1,6 +1,11 @@
 # Copyright © 2014 maxint <NOT_SPAM_lnychina@gmail.com>
 #
 # Distributed under terms of the MIT license.
+#
+# Supported (environment) variables:
+#
+# - SDK_ROOT: SDK root directory
+#
 
 # get SDK root
 if(NOT SDK_ROOT)
@@ -27,9 +32,9 @@ find_program(CMAKE_C_COMPILER clang PATHS "${SDK_ROOT}/tools/llvm-3.1/bin" NO_DE
 find_program(CMAKE_CXX_COMPILER clang++ PATHS "${SDK_ROOT}/tools/llvm-3.1/bin" NO_DEFAULT_PATH)
 find_program(CMAKE_AR ar PATH "${TIZEN_GCC_TOOLCHAIN}/arm-linux-gnueabi/bin" NO_DEFAULT_PATH)
 # NOTE: fix bug of no -D* passed when checking compilers
-include(CMakeForceCompiler)
-cmake_force_c_compiler(${CMAKE_C_COMPILER} Clang)
-cmake_force_cxx_compiler(${CMAKE_CXX_COMPILER} Clang)
+# include(CMakeForceCompiler)
+# cmake_force_c_compiler(${CMAKE_C_COMPILER} Clang)
+# cmake_force_cxx_compiler(${CMAKE_CXX_COMPILER} Clang)
 
 # compiler and linker flags
 set(TIZEN_C_FLAGS "-fmessage-length=0 -march=${SDK_ARCH} -mtune=cortex-a8 -mfpu=vfpv3-d16 -mfloat-abi=soft -mthumb -Wa,-mimplicit-it=thumb -fpic -mfloat-abi=softfp -mfpu=neon")

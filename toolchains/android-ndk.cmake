@@ -10,14 +10,14 @@
 #     Default: android-9
 #     Posible values are independent on NDK version
 #
-#   SDK_ABI - ABI
+#   SDK_ARCH - architecture
 #
-#     Default: armeabi-v7a
+#     Default: armv7-a
 #     Posible values are:
-#       armebi
-#       armeabi-v6
-#       armeabi-v7a
-#       arm64-v8a
+#       arm
+#       armv6
+#       armv7-a
+#       arm64
 #       x86
 #       x86_64
 #       mips
@@ -41,7 +41,7 @@
 #       stlport_shared
 #
 
-# get NDK root
+# SDK_ROOT
 if(NOT SDK_ROOT)
   if(DEFINED ENV{SDK_ROOT})
     set(SDK_ROOT $ENV{SDK_ROOT})
@@ -55,7 +55,7 @@ endif()
 # for convenience
 set(ANDROID 1)
 
-# platforms
+# SDK_API_VERSION
 file(GLOB SDK_API_VERSION_SUPPORTED RELATIVE ${SDK_ROOT}/platforms "${SDK_ROOT}/platforms/android-*")
 if(NOT SDK_API_VERSION)
   set(SDK_API_VERSION "android-9")
@@ -70,12 +70,42 @@ set(SDK_API_VERSION "${SDK_API_VERSION}" CACHE STRING "Android SDK API (${SDK_AP
 set_property(CACHE SDK_API_VERSION PROPERTY STRINGS ${SDK_API_VERSION_SUPPORTED})
 set(SDK_API_ROOT ${SDK_ROOT}/platforms/${SDK_API_VERSION})
 
-# ABI
+# SDK_ARCH
+if(NOT SDK_ARCH)
+  set(SDK_ARCH "armv7-a")
+endif()
+
+# SDK_ABI
+set(SDK_ABI ${SDK_ARCH})
+if(SDK_ARCH STREQUAL "arm")
+  set(SDK_ABI "armeabi")
+  set(SDK_PROCESSOR "ARM")
+  set(SDK_C_FLAGS "-march=armv5te -mtune=xscale -msoft-float")
+  set(SDK_LLVM_TRIPLE "armv5te-none-linux-androideabi")
+elseif(SDK_ARCH STREQUAL "armv6")
+  set(SDK_ABI "armeabi-v6")
+  set(SDK_PROCESSOR "ARM")
+  set(SDK_C_FLAGS "-march=armv6 -mfloat-abi=softfp -mfpu=vfp")
+  set(SDK_LLVM_TRIPLE "armv6-none-linux-androideabi")
+elseif(SDK_ARCH STREQUAL "armv7-a")
+  set(SDK_ABI "armeabi-v7a")
+  set(SDK_PROCESSOR "ARM")
+  set(SDK_C_FLAGS "-march=armv7-a -mfloat-abi=softfp -mfpu=neon -ftree-vectorize -ffast-math")
+  set(SDK_LLVM_TRIPLE "armv7-none-linux-androideabi")
+elseif(SDK_ARCH STREQUAL "armv8-a")
+  set(SDK_ABI "arm64-v8a")
+  set(SDK_PROCESSOR "ARM64")
+  set(SDK_C_FLAGS "-march=armv8-a")
+  set(SDK_LLVM_TRIPLE "aarch64-none-linux-androideabi")
+#elseif(SDK_ARCH STREQUAL "x86")
+#elseif(SDK_ARCH STREQUAL "x86_64")
+#elseif(SDK_ARCH STREQUAL "mips")
+#elseif(SDK_ARCH STREQUAL "mips64")
+else()
+  message(FATAL_ERROR "Unsupported ARCH: ${SDK_ARCH}")
+endif()
 set(_lib_root "${SDK_ROOT}/sources/cxx-stl/stlport/libs")
 file(GLOB SDK_ABI_SUPPORTED RELATIVE "${_lib_root}" "${_lib_root}/*")
-if(NOT SDK_ABI)
-  set(SDK_ABI "armeabi-v7a")
-endif()
 list(FIND SDK_ABI_SUPPORTED ${SDK_ABI} SDK_ABI_FOUND)
 if(SDK_ABI_FOUND EQUAL -1)
   message(WARNING "SDK_ABI (${SDK_ABI}) is not supported (${SDK_ABI_SUPPORTED}). Rollback to 'armeabi'")
@@ -83,36 +113,7 @@ if(SDK_ABI_FOUND EQUAL -1)
 endif()
 set(SDK_ABI "${SDK_ABI}" CACHE STRING "The target ABI for Android. If arm, then armeabi-v7a is recommended for hardware floating point")
 set_property(CACHE SDK_ABI PROPERTY STRINGS ${SDK_ABI_SUPPORTED})
-
-# set target ABI options
-set(SDK_ARCH ${SDK_ABI})
-if(SDK_ABI STREQUAL "armeabi")
-  set(SDK_ARCH "arm")
-  set(SDK_PROCESSOR "ARM")
-  set(SDK_C_FLAGS "-march=armv5te -mtune=xscale -msoft-float")
-  set(SDK_LLVM_TRIPLE "armv5te-none-linux-androideabi")
-elseif(SDK_ABI STREQUAL "armeabi-v6")
-  set(SDK_ARCH "armv6")
-  set(SDK_PROCESSOR "ARM")
-  set(SDK_C_FLAGS "-march=armv6 -mfloat-abi=softfp -mfpu=vfp")
-  set(SDK_LLVM_TRIPLE "armv6-none-linux-androideabi")
-elseif(SDK_ABI STREQUAL "armeabi-v7a")
-  set(SDK_ARCH "armv7-a")
-  set(SDK_PROCESSOR "ARM")
-  set(SDK_C_FLAGS "-march=armv7-a -mfloat-abi=softfp -mfpu=neon -ftree-vectorize -ffast-math")
-  set(SDK_LLVM_TRIPLE "armv7-none-linux-androideabi")
-elseif(SDK_ABI STREQUAL "arm64-v8a")
-  set(SDK_ARCH "arm64")
-  set(SDK_PROCESSOR "ARM64")
-  set(SDK_C_FLAGS "-march=armv8-a")
-  set(SDK_LLVM_TRIPLE "aarch64-none-linux-androideabi")
-#elseif(SDK_ABI STREQUAL "x86")
-#elseif(SDK_ABI STREQUAL "x86_64")
-#elseif(SDK_ABI STREQUAL "mips")
-#elseif(SDK_ABI STREQUAL "mips64")
-else()
-  message(FATAL_ERROR "Unsupported ABI: ${SDK_ABI}")
-endif()
+unset(_lib_root)
 
 # system info
 set(CMAKE_SYSTEM_NAME Android)
@@ -235,9 +236,9 @@ find_program(CMAKE_CXX_COMPILER
   PATHS ${SDK_CLANG_TOOLCHAIN_ROOT} ${SDK_TOOLCHAIN_ROOT}
   NO_DEFAULT_PATH)
 # NOTE: fix bug of no -D* passed when checking compilers
-include(CMakeForceCompiler)
-cmake_force_c_compiler(${CMAKE_C_COMPILER} GNU)
-cmake_force_cxx_compiler(${CMAKE_CXX_COMPILER} GNU)
+# include(CMakeForceCompiler)
+# cmake_force_c_compiler(${CMAKE_C_COMPILER} GNU)
+# cmake_force_cxx_compiler(${CMAKE_CXX_COMPILER} GNU)
 
 # find path of libgcc.a
 find_program(SDK_GCC_COMPILER

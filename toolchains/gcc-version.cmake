@@ -1,5 +1,10 @@
 # author: maxint <NOT_SPAM_lnychina@gmail.com>
 # Find the given version gcc/g++ in PATH
+#
+# Supported (environment) variables:
+#
+# - GCC_VERSION: gcc version
+#
 
 # basic setup
 set(CMAKE_SYSTEM_NAME Linux)

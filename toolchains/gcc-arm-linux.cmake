@@ -60,9 +60,9 @@ find_program(CMAKE_AR ${TARGET_TOOLCHAIN}-ar PATH "${SDK_ROOT}/bin" NO_DEFAULT_P
 find_program(CMAKE_RANLIB ${TARGET_TOOLCHAIN}-ranlib PATH "${SDK_ROOT}/bin" NO_DEFAULT_PATH)
 
 # NOTE: fix bug of no -D* passed when checking compilers
-include(CMakeForceCompiler)
-cmake_force_c_compiler(${CMAKE_C_COMPILER} GNU)
-cmake_force_cxx_compiler(${CMAKE_CXX_COMPILER} GNU)
+# include(CMakeForceCompiler)
+# cmake_force_c_compiler(${CMAKE_C_COMPILER} GNU)
+# cmake_force_cxx_compiler(${CMAKE_CXX_COMPILER} GNU)
 
 # compiler and linker flags
 set(CMAKE_C_FLAGS "-march=${SDK_ARCH}" CACHE STRING "C Flags" FORCE)
