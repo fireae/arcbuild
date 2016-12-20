@@ -4,6 +4,7 @@ function(arcbuild_set_from_env)
   foreach(name ${ARGN})
     set(env_value "$ENV{${name}}")
     if(env_value)
+      message("${name}: ${env_value}")
       set(${name} "${env_value}" PARENT_SCOPE)
     endif()
   endforeach()
@@ -28,7 +29,7 @@ endfunction()
 function(arcbuild_set_to_short_var prefix)
   foreach(name ${ARGN})
     set(prefix_name "${prefix}_${name}")
-    if(prefix_name)
+    if(${prefix_name})
       set(${name} "${${prefix_name}}" PARENT_SCOPE)
     endif()
   endforeach()
@@ -56,7 +57,6 @@ function(arcbuild_get_toolchain var_name platform)
     set(path "tizen1.0.cmake")
   endif()
   if(path)
-    get_filename_component(path "${path}" ABSOLUTE)
     set(${var_name} ${path} PARENT_SCOPE)
   endif()
 endfunction()
@@ -108,20 +108,13 @@ function(arcbuild_build)
   # Parse arguments
 
   # Read from environment variables
-  arcbuild_set_from_env(CMAKE_SOURCE_DIR CMAKE_BINARY_DIR CMAKE_TOOLCHAIN_FILE CMAKE_MAKE_PROGRAM)
   arcbuild_set_from_env(ARCBUILD_TYPE ARCBUILD_PLATFORM ARCBUILD_SDK ARCBUILD_VERSION ARCBUILD_SUFFIX)
   arcbuild_set_from_env(SDK_ROOT SDK_ARCH SDK_API_VERSION)
   arcbuild_set_from_env(MPABSE_DIR MPABSE_ROOT MPABSE_VERSION)
 
-  # Read from cmake variables
-  arcbuild_set_from_short_var(ARCBUILD TYPE PLATFORM SDK VERBOSE SUFFIX)
-  arcbuild_set_from_short_var(SDK ROOT ARCH API_VERSION)
-  arcbuild_set_from_short_var(CMAKE SOURCE_DIR BINARY_DIR TOOLCHAIN_FILE MAKE_PROGRAM)
-
   # Write to short variables
   arcbuild_set_to_short_var(ARCBUILD TYPE PLATFORM SDK VERBOSE)
   arcbuild_set_to_short_var(SDK ROOT ARCH)
-  arcbuild_set_to_short_var(CMAKE SOURCE_DIR BUILD_DIR TOOLCHAIN_FILE MAKE_PROGRAM)
 
   # Verbose
   if(NOT VERBOSE)
@@ -172,7 +165,7 @@ function(arcbuild_build)
 
   # SOURCE_DIR
   if(NOT SOURCE_DIR)
-    set(SOURCE_DIR ".")
+    get_filename_component(SOURCE_DIR "." ABSOLUTE)
   endif()
 
   # BINARY_DIR
@@ -203,10 +196,49 @@ function(arcbuild_build)
   ##############################
   # Print information
   arcbuild_echo("Building information:")
-  foreach(name TYPE PLATFORM ARCH SDK ROOT API_VERSION SOURCE_DIR BINARY_DIR TOOLCHAIN_FILE
-               MAKE_PROGRAM CMAKE_GENERATOR VC_ENV_RUN)
+  foreach(name PLATFORM SOURCE_DIR BINARY_DIR CMAKE_GENERATOR VC_ENV_RUN)
     if(${name})
       arcbuild_echo("- ${name}: ${${name}}")
+    endif()
+  endforeach()
+
+  # Set from short variables
+  arcbuild_set_from_short_var(ARCBUILD TYPE PLATFORM SDK VERBOSE SUFFIX)
+  arcbuild_set_from_short_var(SDK ROOT ARCH API_VERSION)
+  arcbuild_set_from_short_var(CMAKE TOOLCHAIN_FILE MAKE_PROGRAM VERBOSE_MAKEFILE C_FLAGS CXX_FLAGS)
+  if(LINK_FLAGS)
+    arcbuild_append_link_flags(${LINK_FLAGS})
+  endif()
+  set(cmake_args)
+  foreach(name
+    ARCBUILD_VERBOSE
+    ARCBUILD_TYPE
+    ARCBUILD_SUFFIX
+
+    SDK_ROOT
+    SDK_ARCH
+    SDK_API_VERSION
+
+    CMAKE_TOOLCHAIN_FILE
+    CMAKE_MAKE_PROGRAM
+    CMAKE_VERBOSE_MAKEFILE
+
+    CMAKE_C_FLAGS
+    CMAKE_CXX_FLAGS
+    CMAKE_SHARED_LINKER_FLAGS
+    CMAKE_EXE_LINKER_FLAGS
+
+    MPBASE_DIR
+    MPBASE_ROOT
+    MPBASE_VERSION
+    )
+    if(${name})
+      string(FIND ${name} "_" underline_pos)
+      math(EXPR underline_pos "${underline_pos}+1")
+      string(SUBSTRING ${name} ${underline_pos} -1 short_name)
+      # string(REGEX REPLACE "^[A-Z]+_" "" short_name "${name}")
+      arcbuild_echo("- ${short_name}: ${${name}}")
+      list(APPEND cmake_args "-D${name}=${${name}}")
     endif()
   endforeach()
 
@@ -238,24 +270,9 @@ function(arcbuild_build)
   execute_process(
     COMMAND ${CMAKE_CMD}
     "${SOURCE_DIR}"
-    -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
-    -DCMAKE_MAKE_PROGRAM=${MAKE_PROGRAM}
-    -DCMAKE_VERBOSE_MAKEFILE=${VERBOSE_MAKEFILE}
-
     -G${CMAKE_GENERATOR}
     -DARCBUILD=1
-    -DARCBUILD_VERBOSE=${VERBOSE}
-    -DARCBUILD_TYPE=${TYPE}
-    -DARCBUILD_SUFFIX=${SUFFIX}
-
-    -DSDK_ROOT=${ROOT}
-    -DSDK_ARCH=${ARCH}
-    -DSDK_API_VERSION=${API_VERSION}
-
-    -DMPBASE_DIR=${MPBASE_DIR}
-    -DMPBASE_ROOT=${MPBASE_ROOT}
-    -DMPBASE_VERSION=${MPBASE_VERSION}
-
+    ${cmake_args}
     WORKING_DIRECTORY "${BINARY_DIR}"
   )
   execute_process(
