@@ -17,19 +17,14 @@ add_executable(samplecode samplecodes/samplecode.c)
 target_link_libraries(samplecode arcsoft_xxx)
 
 ## Enable arcbuild functions
-find_path(ARCBUILD_ROOT_DIR arcbuild.cmake PATHS
-  "${ARCBUILD_ROOT_DIR}"
-  "${CMAKE_BINARY_DIR}/arcbuild"
-  ../.. # only for example projects
-)
+include(../../arcbuild.cmake)
 
 # Enable features
-include(${ARCBUILD_ROOT_DIR}/arcbuild.cmake)
 arcbuild_enable_features(cxx11 neon sse2 hidden)
 
 if(ARCBUILD)
   # Define ArcSoft SDK
-  include(${ARCBUILD_ROOT_DIR}/plugins/arcsoft_sdk.cmake)
+  include(${ARCBUILD_DIR}/arcsoft_sdk.cmake)
   arcbuild_define_arcsoft_sdk(
     arcsoft_xxx
     LIBRARY arcsoft_xxx

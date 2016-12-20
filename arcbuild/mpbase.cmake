@@ -1,5 +1,5 @@
-include(${ARCBUILD_ROOT_DIR}/arcbuild.cmake)
-include(${ARCBUILD_ROOT_DIR}/plugins/arcsoft_sdk.cmake)
+include(${ARCBUILD_DIR}/core.cmake)
+include(${ARCBUILD_DIR}/arcsoft_sdk.cmake)
 
 function(arcbuild_guess_mpbase_version var_name)
   arcbuild_get_platform_code(platform)
