@@ -76,7 +76,7 @@ function(arcbuild_build)
   arcbuild_set_from_env(CMAKE_SOURCE_DIR CMAKE_BINARY_DIR CMAKE_TOOLCHAIN_FILE CMAKE_MAKE_PROGRAM)
   arcbuild_set_from_env(ARCBUILD_TYPE ARCBUILD_PLATFORM ARCBUILD_SDK ARCBUILD_VERSION)
   arcbuild_set_from_env(SDK_ROOT SDK_ARCH)
-  arcbuild_set_from_env(MPABSE_ROOT MPABSE_VERSION)
+  arcbuild_set_from_env(MPABSE_DIR MPABSE_ROOT MPABSE_VERSION)
 
   # Read from cmake variables
   arcbuild_set_from_short_var(ARCBUILD TYPE PLATFORM SDK VERBOSE)
@@ -133,6 +133,9 @@ function(arcbuild_build)
     -DARCBUILD=1
     -DSDK_ROOT=${SDK_ROOT}
     -DSDK_ARCH=${SDK_ARCH}
+    -DMPBASE_DIR=${MPBASE_DIR}
+    -DMPBASE_ROOT=${MPBASE_ROOT}
+    -DMPBASE_VERSION=${MPBASE_VERSION}
     -DCMAKE_MAKE_PROGRAM=${MAKE_PROGRAM}
     WORKING_DIRECTORY "${BINARY_DIR}"
   )
