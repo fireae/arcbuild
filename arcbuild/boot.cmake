@@ -1,0 +1,7 @@
+if(_BUILD)
+  unset(_BUILD)
+  include(${ARCBUILD_DIR}/build.cmake)
+  arcbuild_build()
+else()
+  include(${ARCBUILD_DIR}/core.cmake)
+endif()

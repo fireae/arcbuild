@@ -7,6 +7,7 @@ function(arcbuild_upgrade target_dir)
   arcbuild_echo("Upgrading arcbuild to: ${target_dir} ...")
   foreach(name
 arcsoft_sdk.cmake
+boot.cmake
 build.cmake
 core.cmake
 mpbase.cmake
