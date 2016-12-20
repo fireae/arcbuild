@@ -148,6 +148,11 @@ function(arcbuild_build)
     endif()
   endif()
 
+  # BUILD_TYPE
+  if(NOT BUILD_TYPE)
+    set(BUILD_TYPE "Release")
+  endif()
+
   # VC ROOT
   if(PLATFORM STREQUAL "windows" AND NOT ROOT)
     arcbuild_get_vc_root(ROOT "${SDK}")
@@ -190,8 +195,8 @@ function(arcbuild_build)
   endif()
 
   # Get binary direcotry
-  string(REPLACE ";" "_" ARCH_JOIN "${ARCH}")
-  set(BINARY_DIR "${BINARY_DIR}/${ARCH_JOIN}")
+  join(binary_subdir "_" ${PLATFORM} ${ARCH})
+  set(BINARY_DIR "${BINARY_DIR}/${binary_subdir}")
 
   ##############################
   # Print information
@@ -205,7 +210,7 @@ function(arcbuild_build)
   # Set from short variables
   arcbuild_set_from_short_var(ARCBUILD TYPE PLATFORM SDK VERBOSE SUFFIX)
   arcbuild_set_from_short_var(SDK ROOT ARCH API_VERSION)
-  arcbuild_set_from_short_var(CMAKE TOOLCHAIN_FILE MAKE_PROGRAM VERBOSE_MAKEFILE C_FLAGS CXX_FLAGS)
+  arcbuild_set_from_short_var(CMAKE TOOLCHAIN_FILE MAKE_PROGRAM VERBOSE_MAKEFILE C_FLAGS CXX_FLAGS BUILD_TYPE)
   if(LINK_FLAGS)
     arcbuild_append_link_flags(${LINK_FLAGS})
   endif()
@@ -226,14 +231,15 @@ function(arcbuild_build)
     SDK_ARCH
     SDK_API_VERSION
 
-    CMAKE_TOOLCHAIN_FILE
-    CMAKE_MAKE_PROGRAM
-    CMAKE_VERBOSE_MAKEFILE
-
+    CMAKE_BUILD_TYPE
     CMAKE_C_FLAGS
     CMAKE_CXX_FLAGS
     CMAKE_SHARED_LINKER_FLAGS
     CMAKE_EXE_LINKER_FLAGS
+
+    CMAKE_TOOLCHAIN_FILE
+    CMAKE_MAKE_PROGRAM
+    CMAKE_VERBOSE_MAKEFILE
 
     MPBASE_DIR
     MPBASE_ROOT

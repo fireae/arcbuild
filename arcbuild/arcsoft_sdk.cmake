@@ -201,7 +201,7 @@ function(arcbuild_update_version_file name path version)
 endfunction()
 
 function(arcbuild_get_compile_flags var_name name)
-  set(flags ${CMAKE_CXX_FLAGS})
+  set(flags "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS}")
   get_target_property(custom_flags ${name} COMPILE_FLAGS)
   if(custom_flags)
     set(flags "${flags} ${custom_flags}")
