@@ -130,24 +130,47 @@ function(arcbuild_get_abi_name var_name)
 endfunction()
 
 
-function(arcbuild_get_package_name var_name name version build_type)
+function(arcbuild_get_package_name_parts var_name name version build_type)
   arcbuild_get_platform_code(platform)
   arcbuild_get_arch_code(arch)
   list(REMOVE_AT platform 0)
   list(REMOVE_AT arch 0)
-  join(platform "_" ${platform})
-  join(arch "_" ${arch})
-  set(package_name "${name}_${version}_${platform}_${arch}_${build_type}")
-  if(ARCBUILD_CUSTOMER)
-    set(package_name "${package_name}_FOR_${ARCBUILD_CUSTOMER}")
-  endif()
   string(TIMESTAMP current_date "%m%d%Y")
-  set(package_name "${package_name}_${current_date}")
-  if(ARCBUILD_SUFFIX)
-    set(package_name "${package_name}${ARCBUILD_SUFFIX}")
-  endif()
-  string(TOUPPER ${package_name} package_name)
+  set(parts ${name} ${version} ${platform} ${arch} ${build_type} ${current_date})
+  set(${var_name} ${parts} PARENT_SCOPE)
+endfunction()
+
+
+function(arcbuild_get_package_name var_name sdk_name version build_type)
+  arcbuild_get_package_name_parts(package_name_parts ${sdk_name} ${version} ${build_type})
+  join(package_name "_" ${package_name_parts})
+  string(TOUPPER "${package_name}" package_name)
   set(${var_name} ${package_name} PARENT_SCOPE)
+
+  if(ARCBUILD_CUSTOMER)
+    list(INSERT package_name_parts 4 "FOR" ${ARCBUILD_CUSTOMER})
+  endif()
+  join(full_package_name "_" ${package_name_parts})
+  if(ARCBUILD_SUFFIX)
+    set(full_package_name "${full_package_name}${ARCBUILD_SUFFIX}")
+  endif()
+  string(TOUPPER "${full_package_name}" full_package_name)
+  arcbuild_echo("Package name: ${package_name}")
+  arcbuild_echo("Full Package name: ${full_package_name}")
+endfunction()
+
+
+function(arcbuild_get_full_package_name var_name sdk_name version build_type)
+  arcbuild_get_package_name_parts(package_name_parts ${sdk_name} ${version} ${build_type})
+  if(ARCBUILD_CUSTOMER)
+    list(INSERT package_name_parts 4 "FOR" ${ARCBUILD_CUSTOMER})
+  endif()
+  join(full_package_name "_" ${package_name_parts})
+  if(ARCBUILD_SUFFIX)
+    set(full_package_name "${full_package_name}${ARCBUILD_SUFFIX}")
+  endif()
+  string(TOUPPER "${full_package_name}" full_package_name)
+  set(${var_name} ${full_package_name} PARENT_SCOPE)
 endfunction()
 
 
@@ -263,7 +286,21 @@ function(arcbuild_get_version_from_version_file path vv_major vv_minor vv_build)
 endfunction()
 
 
-function(arcbuild_define_arcsoft_sdk name)
+function(arcbuild_has_mpbase_dependency var_name name)
+  get_target_property(all_depends ${name} LINK_LIBRARIES)
+  foreach(depend ${all_depends})
+    if(depend MATCHES "(mpbase|mpbase.a|mpbase.lib)$")
+      set(has_depend 1)
+      break()
+    endif()
+  endforeach()
+  if(has_depend)
+    set(${var_name} ${has_depend} PARENT_SCOPE)
+  endif()
+endfunction()
+
+
+function(arcbuild_define_arcsoft_sdk sdk_name)
   # Parse arguments
   set(args_option_args)
   set(args_single_value_args LIBRARY VERSION_FILE RELEASE_NOTES)
@@ -275,8 +312,11 @@ function(arcbuild_define_arcsoft_sdk name)
     ${ARGN}
   )
   file(GLOB A_INCS ${A_INCS})
+  if(NOT A_LIBRARY)
+    set(A_LIBRARY ${sdk_name})
+  endif()
   # get_target_property(A_SAMPLE_CODE ${A_SAMPLE_CODE} SOURCES)
-  arcbuild_echo("Define ArcSoft SDK: ${name}")
+  arcbuild_echo("Define ArcSoft SDK: ${sdk_name}")
   arcbuild_echo("- Target library: ${A_LIBRARY}")
   arcbuild_echo("- Include headers: ${A_INCS}")
   arcbuild_echo("- Version file: ${A_VERSION_FILE}")
@@ -285,6 +325,7 @@ function(arcbuild_define_arcsoft_sdk name)
   arcbuild_echo("- Docs: ${A_DOCS}")
 
   # Combine more dependencies into one target
+  set(name ${A_LIBRARY})
   arcbuild_combine_target(${name})
 
   # Get version
@@ -302,8 +343,10 @@ function(arcbuild_define_arcsoft_sdk name)
 
   # Package name
   arcbuild_get_build_type(build_type ${name})
-  arcbuild_get_package_name(package_name ${name} ${version} ${build_type})
+  arcbuild_get_package_name(package_name ${sdk_name} ${version} ${build_type})
+  arcbuild_get_full_package_name(full_package_name ${sdk_name} ${version} ${build_type})
   arcbuild_echo("Package name: ${package_name}")
+  arcbuild_echo("Full Package name: ${full_package_name}")
 
   # ABI name
   arcbuild_get_abi_name(abi_name)
@@ -312,7 +355,9 @@ function(arcbuild_define_arcsoft_sdk name)
   # Install targets
   set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "Install path prefix" FORCE)
 
-  if(MPBASE)
+  arcbuild_has_mpbase_dependency(HAS_MPBASE ${name})
+  if(HAS_MPBASE AND MPBASE)
+    arcbuild_echo("Has mpbase dependency")
     set(prefix "${package_name}/")
     get_target_property(MPBASE_INCLUDE_DIR mpbase INTERFACE_INCLUDE_DIRECTORIES)
     get_target_property(MPBASE_LIBRARY mpbase LOCATION)
@@ -355,7 +400,7 @@ function(arcbuild_define_arcsoft_sdk name)
   endif()
 
   # CPack settings
-  set(CPACK_PACKAGE_FILE_NAME ${package_name})
+  set(CPACK_PACKAGE_FILE_NAME ${full_package_name})
   set(CPACK_GENERATOR ZIP)
   include(CPack)
 endfunction()
