@@ -58,7 +58,7 @@ if(ARCBUILD)
 endif()
 ```
 
-Please check [`docs`](docs/README.md) for more information.
+Please check [docs](docs/README.md) for more information.
 
 ### Build SDK
 
