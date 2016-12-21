@@ -85,17 +85,26 @@ endfunction()
 
 function(arcbuild_get_vc_root var_name sdk)
   if(sdk STREQUAL "vs2012")
-    set(path "$ENV{VS110COMNTOOLS}/../../VC")
+    set(version 11)
   elseif(sdk STREQUAL "vs2013")
-    set(path "$ENV{VS120COMNTOOLS}/../../VC")
+    set(version 12)
   elseif(sdk STREQUAL "vs2015")
-    set(path "$ENV{VS140COMNTOOLS}/../../VC")
+    set(version 14)
+  endif()
+  find_path(path NAMES "vcvarsall.bat" PATHS
+    "$ENV{VS${version}0COMNTOOLS}/../../VC"
+    "$ENV{ProgramFiles}/Microsoft Visual Studio ${version}.0/VC"
+    "$ENV{ProgramFiles} (x86)/Microsoft Visual Studio ${version}.0/VC"
+    NO_DEFAULT_PATH
+  )
+  if(path)
+    get_filename_component(path "${path}" ABSOLUTE)
+    file(TO_NATIVE_PATH "${path}" path)
+    set(${var_name} ${path} PARENT_SCOPE)
+    unset(path CACHE)
   else()
     arcbuild_error("Unknown VC SDK: ${sdk}")
   endif()
-  get_filename_component(path "${path}" ABSOLUTE)
-  file(TO_NATIVE_PATH "${path}" path)
-  set(${var_name} ${path} PARENT_SCOPE)
 endfunction()
 
 function(arcbuild_get_vc_env_run var_name root arch)
@@ -132,6 +141,9 @@ function(arcbuild_build)
     set(VERBOSE_MAKEFILE 1)
   endif()
   arcbuild_set_from_short_var(ARCBUILD VERBOSE)
+
+  arcbuild_echo("--------------------------")
+  arcbuild_echo("--*-- START building --*--")
 
   ##############################
   # Default values
@@ -204,13 +216,13 @@ function(arcbuild_build)
   endif()
 
   # Get binary direcotry
-  join(binary_subdir "_" ${PLATFORM} ${ARCH})
+  join(binary_subdir "_" ${PLATFORM} ${SDK} ${ARCH})
   set(BINARY_DIR "${BINARY_DIR}/${binary_subdir}")
 
   ##############################
   # Print information
   arcbuild_echo("Building information:")
-  foreach(name PLATFORM SOURCE_DIR BINARY_DIR CMAKE_GENERATOR VC_ENV_RUN)
+  foreach(name PLATFORM SDK SOURCE_DIR BINARY_DIR CMAKE_GENERATOR VC_ENV_RUN)
     if(${name})
       arcbuild_echo("- ${name}: ${${name}}")
     endif()
@@ -294,6 +306,7 @@ function(arcbuild_build)
     list(INSERT CMAKE_CMD 0 ${VC_ENV_RUN} &&)
     list(INSERT MAKE_CMD 0 ${VC_ENV_RUN} &&)
   endif()
+  arcbuild_echo("Generating Makefiles ...")
   execute_process(
     COMMAND ${CMAKE_CMD}
     "${SOURCE_DIR}"
@@ -302,6 +315,7 @@ function(arcbuild_build)
     ${cmake_args}
     WORKING_DIRECTORY "${BINARY_DIR}"
   )
+  arcbuild_echo("Making SDK ...")
   execute_process(
     COMMAND ${MAKE_CMD} package
     WORKING_DIRECTORY "${BINARY_DIR}"
@@ -318,4 +332,6 @@ function(arcbuild_build)
       execute_process(COMMAND cmake -E copy "${zip}" "${current_directory}")
     endforeach()
   endif()
+
+  arcbuild_echo("--*-- END building --*--")
 endfunction()
