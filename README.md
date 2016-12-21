@@ -1,6 +1,6 @@
 # CMake build scripts for ArcSoft SDK
 
-Pure cmake scripts for native and cross compiling building of ArcSoft SDK.
+Pure CMake scripts for native and cross compiling building of ArcSoft SDK.
 The previous version is [arcbuild](http://172.17.10.213/lny1856/arcbuild).
 
 
@@ -20,6 +20,8 @@ The previous version is [arcbuild](http://172.17.10.213/lny1856/arcbuild).
 ## Dependencies
 
 - [CMake](http://cmake.org/) >= 3.0
+
+Note: higher version will be downloaded and installed to `~/.arcbuild` if version of  installed CMake is too low.
 
 
 ## Usage
@@ -102,4 +104,5 @@ Delete the `_arcbuild` directory in project root directory, then the build syste
 
 ## TODO
 
-- Download higger version CMake when needed.
+- More tests.
+- Set compile flags to individual source files.
