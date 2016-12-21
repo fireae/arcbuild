@@ -58,6 +58,8 @@ if(ARCBUILD)
 endif()
 ```
 
+Please check [`docs`](docs/README.md) for more information.
+
 ### Build SDK
 
 #### Build for Android (`ARCH=armv7-a` by default)
@@ -100,5 +102,4 @@ Delete the `_arcbuild` directory in project root directory, then the build syste
 
 ## TODO
 
-- Add doc for `arcbuild_define_arcsoft_sdk`.
-- Add doc for `cmake -P arcbuild.cmake`.
+- Download higger version CMake when needed.

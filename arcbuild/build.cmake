@@ -195,6 +195,7 @@ function(arcbuild_build)
   if(NOT TYPE)
     set(TYPE "SHARED")
   endif()
+  string(TOUPPER "${TYPE}" TYPE)
 
   # VC ROOT
   if(PLATFORM STREQUAL "windows" AND NOT ROOT)
@@ -252,7 +253,7 @@ function(arcbuild_build)
   endforeach()
 
   # Set from short variables
-  arcbuild_set_from_short_var(ARCBUILD TYPE PLATFORM SDK VERBOSE SUFFIX)
+  arcbuild_set_from_short_var(ARCBUILD TYPE PLATFORM SDK VERBOSE SUFFIX CUSTOMER)
   arcbuild_set_from_short_var(SDK ROOT ARCH API_VERSION STL)
   arcbuild_set_from_short_var(CMAKE TOOLCHAIN_FILE MAKE_PROGRAM VERBOSE_MAKEFILE C_FLAGS CXX_FLAGS BUILD_TYPE)
 
@@ -274,6 +275,7 @@ function(arcbuild_build)
     ARCBUILD_VERBOSE
     ARCBUILD_TYPE
     ARCBUILD_SUFFIX
+    ARCBUILD_CUSTOMER
 
     SDK_ROOT
     SDK_ARCH
