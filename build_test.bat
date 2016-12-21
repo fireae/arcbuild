@@ -14,6 +14,7 @@ COPY /Y ..\..\arcbuild.cmake .
 cmake -D_BUILD=ON -DPLATFORM=android -DTYPE=SHARED -DSUFFIX=_local_arcbuild -DROOT=E:\NDK\android-ndk-r11b -P arcbuild.cmake
 cmake -D_BUILD=ON -DPLATFORM=vs2015  -DTYPE=SHARED -DSUFFIX=_local_arcbuild -P arcbuild.cmake
 cmake -D_BUILD=ON -DPLATFORM=vs2013  -DTYPE=SHARED -DSUFFIX=_local_arcbuild -P arcbuild.cmake
+cmake -D_BUILD=ON -DPLATFORM=vs2013  -DARCH=x64 -DTYPE=SHARED -DSUFFIX=_local_arcbuild -P arcbuild.cmake
 MOVE /Y *.zip ..\..
 POPD
 pause
