@@ -103,7 +103,7 @@ function(arcbuild_get_vc_root var_name sdk)
     set(${var_name} ${path} PARENT_SCOPE)
     unset(path CACHE)
   else()
-    arcbuild_error("Unknown VC SDK: ${sdk}")
+    arcbuild_error("Unknown VC SDK: ${sdk}!")
   endif()
 endfunction()
 
@@ -133,7 +133,7 @@ function(arcbuild_get_vc_env_run var_name root arch)
     set(${var_name} ${cmd} PARENT_SCOPE)
     unset(path CACHE)
   else()
-    arcbuild_error("Unsupported arch(${arch}) in VC (${root})")
+    arcbuild_error("Unsupported arch(${arch}) in VC (${root})!")
   endif()
 endfunction()
 
@@ -166,7 +166,7 @@ function(arcbuild_build)
   ##############################
   # Default values
   if(NOT PLATFORM)
-    arcbuild_error("Please set target platform, e.g. -DPLATFORM=android")
+    arcbuild_error("Please set target platform, e.g. -DPLATFORM=android!")
   endif()
 
   # PLATFORM & SDK for vc
@@ -189,6 +189,11 @@ function(arcbuild_build)
   # BUILD_TYPE
   if(NOT BUILD_TYPE)
     set(BUILD_TYPE "Release")
+  endif()
+
+  # TYPE
+  if(NOT TYPE)
+    set(TYPE "SHARED")
   endif()
 
   # VC ROOT
@@ -315,7 +320,7 @@ function(arcbuild_build)
     file(REMOVE "${zips}")
   endif()
 
-  # Build & pack
+  # Build
   if(NOT MAKE_PROGRAM)
     set(MAKE_PROGRAM "make")
   endif()
@@ -335,12 +340,24 @@ function(arcbuild_build)
     -DARCBUILD=1
     ${cmake_args}
     WORKING_DIRECTORY "${BINARY_DIR}"
+    RESULT_VARIABLE ret
   )
+  if(NOT ret EQUAL 0)
+    arcbuild_error("Makefiles generation failed!")
+  endif()
+
+  # Pack
   arcbuild_echo("Making SDK ...")
   execute_process(
     COMMAND ${MAKE_CMD} package
     WORKING_DIRECTORY "${BINARY_DIR}"
+    RESULT_VARIABLE ret
   )
+  if(NOT ret EQUAL 0)
+    arcbuild_error("SDK packing failed!")
+  endif()
+
+  # Clean up
   arcbuild_clean_env()
 
   # Copy SDK's to current work directory
