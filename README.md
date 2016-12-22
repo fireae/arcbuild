@@ -34,7 +34,7 @@ The previous version is [arcbuild](http://172.17.10.213/lny1856/arcbuild).
 1. Download `arcbuild.cmake` to root directory of your CMake project.
 2. Build SDK by runing `cmake -P arcbuild.cmake`.
 
-Please check [docs](docs/README.md) for **ArcSoft SDK** build and more information.
+Please check [docs](docs/README.md) for building **ArcSoft SDK** and more information.
 
 ### Build SDK
 
