@@ -148,7 +148,7 @@ function(arcbuild_get_make_targets var_name make_cmd work_dir)
   string(REGEX MATCHALL "\\.\\.\\. ([^ \r\n]+)" targets "${output}")
   string(REPLACE "... " ";" targets "${targets}")
   string(STRIP "${targets}" targets)
-  set(${var_name} ${target} PARENT_SCOPE)
+  set(${var_name} ${targets} PARENT_SCOPE)
 endfunction()
 
 function(arcbuild_download_cmake var_name)
@@ -208,6 +208,31 @@ function(arcbuild_download_cmake var_name)
   set(${var_name} "${cmake_program}" PARENT_SCOPE)
 endfunction()
 
+function(arcbuild_search_ndk_stl var_name build_dir)
+  arcbuild_debug("Searching build.make in ${build_dir} ...")
+  file(GLOB_RECURSE build_cmake_paths "${build_dir}/CMakeFiles/*/build.make")
+  set(all_matched)
+  foreach(path ${build_cmake_paths})
+    arcbuild_debug("- Matching ${path} ...")
+    file(READ "${path}" content)
+    string(REGEX MATCHALL "-l(gabi\\+\\+|gnustl|stlport)_(static|shared)" matched "${content}")
+    if(matched)
+      list(APPEND all_matched ${matched})
+    endif()
+  endforeach()
+  if(all_matched)
+    string(REGEX REPLACE "(_static|_shared|-l)" "" all_matched "${all_matched}")
+    string(REPLACE "-l" ";" all_matched "${all_matched}")
+    string(STRIP "${all_matched}" all_matched)
+    list(REMOVE_DUPLICATES all_matched)
+    list(LENGTH all_matched len)
+    if(${len} GREATER 1)
+      arcbuild_error("More than one type of STL is used: ${all_matched}")
+    endif()
+    set(${var_name} ${all_matched} PARENT_SCOPE)
+  endif()
+endfunction()
+
 function(arcbuild_build)
   ##############################
   # Parse arguments
@@ -223,9 +248,9 @@ function(arcbuild_build)
 
   # Verbose
   if(NOT VERBOSE)
-    set(VERBOSE 1)
+    set(VERBOSE 2)
   endif()
-  if(VERBOSE GREATER 1)
+  if(VERBOSE GREATER 3)
     set(VERBOSE_MAKEFILE 1)
   endif()
   arcbuild_set_from_short_var(ARCBUILD VERBOSE)
@@ -314,6 +339,11 @@ function(arcbuild_build)
   join(binary_subdir "_" ${PLATFORM} ${SDK} ${ARCH})
   set(BINARY_DIR "${BINARY_DIR}/${binary_subdir}")
 
+  # Convert ROOT to cmake-style path
+  if(ROOT)
+    file(TO_CMAKE_PATH "${ROOT}" ROOT)
+  endif()
+
   ##############################
   # Print information
   arcbuild_echo("Building information:")
@@ -381,7 +411,7 @@ function(arcbuild_build)
   # Generate, build and pack
 
   get_filename_component(SOURCE_DIR "${SOURCE_DIR}" ABSOLUTE)
-  get_filename_component(BINARY_DIR "${BINARY_DIR}" ABSOLUTE)
+  # get_filename_component(BINARY_DIR "${BINARY_DIR}" ABSOLUTE)
   if(NOT IS_DIRECTORY "${BINARY_DIR}")
     file(MAKE_DIRECTORY "${BINARY_DIR}")
   endif()
@@ -407,6 +437,7 @@ function(arcbuild_build)
     list(INSERT CMAKE_CMD 0 ${VC_ENV_RUN} &&)
     list(INSERT MAKE_CMD 0 ${VC_ENV_RUN} &&)
   endif()
+
   arcbuild_echo("Generating Makefiles ...")
   execute_process(
     COMMAND ${CMAKE_CMD}
@@ -420,19 +451,45 @@ function(arcbuild_build)
   if(NOT ret EQUAL 0)
     arcbuild_error("Makefiles generation failed!")
   endif()
+  if(PLATFORM STREQUAL "android" AND NOT STL)
+    arcbuild_echo("Searching NDK STL ...")
+    arcbuild_search_ndk_stl(ndk_stl_used "${BINARY_DIR}")
+    if(ndk_stl_used)
+      set(STL ${ndk_stl_used})
+      arcbuild_echo("Enable STL for NDK: ${STL}")
+      set(SDK_STL ${STL})
+      arcbuild_add_env(SDK_STL)
+      list(APPEND cmake_args "-DSDK_STL=${SDK_STL}")
+      execute_process(
+        COMMAND ${CMAKE_CMD}
+        "${SOURCE_DIR}"
+        -G${CMAKE_GENERATOR}
+        -DARCBUILD=1
+        ${cmake_args}
+        WORKING_DIRECTORY "${BINARY_DIR}"
+        RESULT_VARIABLE ret
+      )
+      if(NOT ret EQUAL 0)
+        arcbuild_error("Makefiles generation failed!")
+      endif()
+    endif()
+  endif()
 
   # Build and pack
-  arcbuild_echo("Making SDK ...")
   arcbuild_get_make_targets(MAKE_TARGETS ${MAKE_CMD} ${BINARY_DIR})
-  if(NOT MAKE_CMD MATCHES "nmake")
-    list(APPEND MAKE_CMD "-j4") # speed up building
-  endif()
   list(FIND MAKE_TARGETS "package" ret)
   if(ret EQUAL -1)
     set(make_target "all")
   else()
     set(make_target "package")
   endif()
+  arcbuild_echo("Make target: ${make_target}")
+
+  if(NOT MAKE_CMD MATCHES "nmake")
+    list(APPEND MAKE_CMD "-j4") # speed up building
+  endif()
+
+  arcbuild_echo("Making SDK ...")
   execute_process(
     COMMAND ${MAKE_CMD}  ${make_target}
     WORKING_DIRECTORY "${BINARY_DIR}"

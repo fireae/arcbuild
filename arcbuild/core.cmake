@@ -2,14 +2,22 @@ include(CMakeParseArguments)
 
 option(ARCBUILD_VERBOSE ${ARCBUILD_VERBOSE} "Verbose output of arcbuild")
 
+function(arcbuild_debug)
+  if(ARCBUILD_VERBOSE GREATER 2)
+    message(STATUS "ARCBUILD [D] ${ARGN}")
+  endif()
+endfunction()
+
 function(arcbuild_echo)
-  if(ARCBUILD_VERBOSE)
+  if(ARCBUILD_VERBOSE GREATER 1)
     message(STATUS "ARCBUILD [I] ${ARGN}")
   endif()
 endfunction()
 
 function(arcbuild_warn)
-  message(STATUS "ARCBUILD [W] " ${ARGN})
+  if(ARCBUILD_VERBOSE GREATER 0)
+    message(STATUS "ARCBUILD [W] " ${ARGN})
+  endif()
 endfunction()
 
 function(arcbuild_error)

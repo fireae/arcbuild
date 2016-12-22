@@ -10,6 +10,7 @@ def build(platform, root=None, source_dir=None, binary_dir=None, suffix=None):
         '-D_BUILD=ON',
         '-DPLATFORM=%s' % platform,
         '-DTYPE=SHARED',
+        '-DVERBOSE=3',
     ]
     args += ['-DROOT=%s' % root] if root else []
     args += ['-DSOURCE_DIR=%s' % source_dir] if source_dir else []

@@ -33,12 +33,9 @@
 #     Default: system
 #     Posible values are:
 #       system
-#       gabi++_static
-#       gabi++_shared
-#       gnustl_static
-#       gnustl_shared
-#       stlport_static
-#       stlport_shared
+#       gabi++
+#       gnustl
+#       stlport
 #
 
 # SDK_ROOT
@@ -46,7 +43,6 @@ if(NOT SDK_ROOT)
   if(DEFINED ENV{SDK_ROOT})
     set(SDK_ROOT $ENV{SDK_ROOT})
   endif()
-  set(SDK_ROOT "${SDK_ROOT}" CACHE PATH "Android NDK toolchain location")
 endif()
 if(NOT SDK_ROOT)
   message(FATAL_ERROR "Please set SDK_ROOT variable to toolchain root directory")
@@ -66,8 +62,6 @@ if(NOT SDK_API_VERSION)
     set(SDK_API_VERSION ${SDK_API_LATEST})
   endif()
 endif()
-set(SDK_API_VERSION "${SDK_API_VERSION}" CACHE STRING "Android SDK API (${SDK_API_VERSION_SUPPORTED})")
-set_property(CACHE SDK_API_VERSION PROPERTY STRINGS ${SDK_API_VERSION_SUPPORTED})
 set(SDK_API_ROOT ${SDK_ROOT}/platforms/${SDK_API_VERSION})
 
 # SDK_ARCH
@@ -111,8 +105,6 @@ if(SDK_ABI_FOUND EQUAL -1)
   message(WARNING "SDK_ABI (${SDK_ABI}) is not supported (${SDK_ABI_SUPPORTED}). Rollback to 'armeabi'")
   set(SDK_ABI "armeabi")
 endif()
-set(SDK_ABI "${SDK_ABI}" CACHE STRING "The target ABI for Android. If arm, then armeabi-v7a is recommended for hardware floating point")
-set_property(CACHE SDK_ABI PROPERTY STRINGS ${SDK_ABI_SUPPORTED})
 unset(_lib_root)
 
 # system info
@@ -139,6 +131,11 @@ file(GLOB SDK_TOOLCHAIN_SUPPORTED RELATIVE "${SDK_ROOT}/toolchains" "${SDK_ROOT}
 list(SORT SDK_TOOLCHAIN_SUPPORTED)
 list(REVERSE SDK_TOOLCHAIN_SUPPORTED)
 if(NOT SDK_TOOLCHAIN)
+  if(DEFINED ENV{SDK_TOOLCHAIN})
+    set(SDK_TOOLCHAIN $ENV{SDK_TOOLCHAIN})
+  endif()
+endif()
+if(NOT SDK_TOOLCHAIN)
   foreach(_TC ${SDK_TOOLCHAIN_SUPPORTED})
     if(NOT _TC MATCHES "(llvm|clang)") # skip the llvm/clang
       set(SDK_TOOLCHAIN ${_TC})
@@ -148,21 +145,22 @@ if(NOT SDK_TOOLCHAIN)
   message(STATUS "Available toolchains: ${SDK_TOOLCHAIN_SUPPORTED}")
   message(STATUS "No SDK_TOOLCHAIN is set. Use the latest gcc toolchain: ${SDK_TOOLCHAIN}")
 endif()
-set(SDK_TOOLCHAIN "${SDK_TOOLCHAIN}" CACHE STRING "Android toolchains")
-set_property(CACHE SDK_TOOLCHAIN PROPERTY STRINGS ${SDK_TOOLCHAIN_SUPPORTED})
 file(GLOB SDK_TOOLCHAIN_ROOT "${SDK_ROOT}/toolchains/${SDK_TOOLCHAIN}/prebuilt/*")
 
 # get arch, ABI and gcc version
 string(REGEX MATCH "([.0-9]+)$" SDK_COMPILER_VERSION "${SDK_TOOLCHAIN}")
 
 # STL
-set(SDK_STL_SUPPORTED "system;gabi++_static;gabi++_shared;gnustl_static;gnustl_shared;stlport_static;stlport_shared")
+set(SDK_STL_SUPPORTED "system;gabi++;gnustl;stlport")
+if(NOT SDK_STL)
+  if(DEFINED ENV{SDK_STL})
+    set(SDK_STL $ENV{SDK_STL})
+  endif()
+endif()
 if(NOT SDK_STL)
   message(STATUS "No SDK_STL is set. Use 'system' STL")
   set(SDK_STL "system")
 endif()
-set(SDK_STL "${SDK_STL}" CACHE STRING "C++ runtime")
-set_property(CACHE SDK_STL PROPERTY STRINGS ${SDK_STL_SUPPORTED})
 
 set(SDK_STL_ROOT "${SDK_ROOT}/sources/cxx-stl")
 if(SDK_STL STREQUAL "system")
@@ -170,29 +168,26 @@ if(SDK_STL STREQUAL "system")
   set(SDK_EXCEPTIONS       OFF)
   set(SDK_STL_ROOT         "${SDK_STL_ROOT}/system")
   set(SDK_STL_INCLUDE_DIRS "${SDK_STL_ROOT}/include")
-elseif(SDK_STL MATCHES "gabi")
+elseif(SDK_STL STREQUAL "gabi++")
   set(SDK_RTTI             ON)
   set(SDK_EXCEPTIONS       ON)
   set(SDK_STL_ROOT         "${SDK_STL_ROOT}/gabi++")
   set(SDK_STL_INCLUDE_DIRS "${SDK_STL_ROOT}/include")
-  set(SDK_STL_LDFLAGS      "-L${SDK_STL_ROOT}/libs/${SDK_ABI} -lgabi++_static")
-elseif(SDK_STL MATCHES "stlport")
+  set(SDK_STL_LDFLAGS      "-L${SDK_STL_ROOT}/libs/${SDK_ABI}")
+elseif(SDK_STL STREQUAL "stlport")
   set(SDK_RTTI             ON)
   set(SDK_EXCEPTIONS       ON)
   set(SDK_STL_ROOT         "${SDK_STL_ROOT}/stlport")
   set(SDK_STL_INCLUDE_DIRS "${SDK_STL_ROOT}/stlport")
-  set(SDK_STL_LDFLAGS      "-L${SDK_STL_ROOT}/libs/${SDK_ABI} -lstlport_static")
-elseif(SDK_STL MATCHES "gnustl")
+  set(SDK_STL_LDFLAGS      "-L${SDK_STL_ROOT}/libs/${SDK_ABI}")
+elseif(SDK_STL STREQUAL "gnustl")
   set(SDK_RTTI             ON)
   set(SDK_EXCEPTIONS       ON)
   set(SDK_STL_ROOT         "${SDK_STL_ROOT}/gnu-libstdc++/${SDK_COMPILER_VERSION}")
   set(SDK_STL_INCLUDE_DIRS "${SDK_STL_ROOT}/include" "${SDK_STL_ROOT}/libs/${SDK_ABI}/include")
-  set(SDK_STL_LDFLAGS      "-L${SDK_STL_ROOT}/libs/${SDK_ABI} -lgnustl_static -lsupc++")
-endif()
-# case of shared STL linkage
-if(SDK_STL MATCHES "shared" AND DEFINED SDK_STL_LDFLAGS)
-  string(REPLACE "_static" "_shared" SDK_STL_LDFLAGS "${SDK_STL_LDFLAGS}")
-  # TODO: copy .so
+  set(SDK_STL_LDFLAGS      "-L${SDK_STL_ROOT}/libs/${SDK_ABI} -lsupc++")
+else()
+  message(FATAL_ERROR "Unknown NDK STL: ${SDK_STL}")
 endif()
 # NOTE: set -fno-exceptions -fno-rtti when use system
 if(NOT SDK_RTTI)
@@ -248,7 +243,6 @@ find_program(SDK_GCC_COMPILER
   i686-linux-android-gcc x86_64-linux-android-gcc
   PATHS "${SDK_TOOLCHAIN_ROOT}/bin")
 execute_process(COMMAND "${SDK_GCC_COMPILER} -print-libgcc-file-name" OUTPUT_VARIABLE SDK_LIBGCC)
-#exec_program(${SDK_GCC_COMPILER} ARGS "-print-libgcc-file-name" OUTPUT_VARIABLE SDK_LIBGCC)
 #message(STATUS ${SDK_LIBGCC})
 
 # global includes and link directories
@@ -261,13 +255,13 @@ if(SDK_CLANG_TOOLCHAIN_ROOT)
 else()
   set(CLANG_C_FLAGS)
 endif()
-set(CMAKE_C_FLAGS "${CLANG_C_FLAGS} -fno-short-enums ${SDK_C_FLAGS}" CACHE STRING "C Flags")
+set(CMAKE_C_FLAGS "${CLANG_C_FLAGS} -fno-short-enums ${SDK_C_FLAGS}")
 # set sysroot manually for low version cmake
 #set(CMAKE_C_FLAGS "--sysroot=${CMAKE_SYSROOT} ${CMAKE_C_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} ${SDK_CXX_FLAGS}" CACHE STRING "C++ Flags")
-set(CMAKE_LINKER_FLAGS "${SDK_LIBGCC} ${SDK_STL_LDFLAGS} -lc -lm -lstdc++ -ldl -llog" CACHE STRING "Shared Linker Flags")
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_LINKER_FLAGS}" CACHE STRING "")
-set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS}" CACHE STRING "")
-set(CMAKE_EXE_LINKER_FLAGS    "${CMAKE_LINKER_FLAGS}" CACHE STRING "")
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} ${SDK_CXX_FLAGS}")
+set(CMAKE_LINKER_FLAGS "${SDK_LIBGCC} ${SDK_STL_LDFLAGS} -lc -lm -lstdc++ -ldl -llog")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_LINKER_FLAGS}")
+set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS    "${CMAKE_LINKER_FLAGS}")
 
 # vim:ft=cmake et ts=2 sts=2 sw=2:

@@ -11,7 +11,7 @@ BUILD_TYPE      # build configure in "Debug|Release|MinSizeRel|RelWithDebInfo", 
 API_VERSION     # SDK API version, e.g. android-9, default is empty.
 MAKE_PROGRAM    # path of "make" program, usually is searched automatically.
 TOOLCHAIN_FILE  # toolchain file for CMake, usually is set automatically.
-VERBOSE         # level of debug output, 0 for quiet mode, 1 for normal, 2 for verbose makefile, default is 1.
+VERBOSE         # level of output, see [Verbose Level](#verbose-level).
 
 C_FLAGS         # compile flags for C compiler.
 CXX_FLAGS       # compile flags for C++ compiler.
@@ -23,6 +23,19 @@ SUFFIX          # add this suffix to package name.
 # Following arguments are unstable.
 SDK             # reserved
 STL             # reserved
+```
+
+### Verbose Level
+
+The `VERBOSE` argument controls the output level of build system.
+There are several levels as the following:
+
+```cmake
+0 - quiet
+1 - warning
+2 - information (default)
+3 - debug
+4 - verbose makefile
 ```
 
 
