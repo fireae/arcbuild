@@ -4,8 +4,6 @@
 All the following arguments MUST be added before `-P`.
 
 ```cmake
-_BUILD          # [REQUIRED] MUST be "ON".
-
 TYPE            # [REQUIRED] type of target library, "static" or "shared", "shared" by default.
 PLATFORM        # target platform, e.g. android, ios, vs2015, etc.
 ARCH            # target architectures, e.g. armv7-a, "armv7;armv7s;arm64", etc.

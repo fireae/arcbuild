@@ -32,7 +32,7 @@ The previous version is [arcbuild](http://172.17.10.213/lny1856/arcbuild).
 ## Usage
 
 1. Download `arcbuild.cmake` to root directory of your CMake project.
-2. Build SDK by runing `cmake -D_BUILD=ON -P arcbuild.cmake`.
+2. Build SDK by runing `cmake -P arcbuild.cmake`.
 
 Please check [docs](docs/README.md) for **ArcSoft SDK** build and more information.
 
@@ -41,25 +41,25 @@ Please check [docs](docs/README.md) for **ArcSoft SDK** build and more informati
 #### Build for Android (`ARCH=armv7-a` by default)
 
 ```shell
-cmake -D_BUILD=ON -DPLATFORM=android -DROOT="E:\NDK\android-ndk-r11b" -P arcbuild.cmake
+cmake -DPLATFORM=android -DROOT="E:\NDK\android-ndk-r11b" -P arcbuild.cmake
 ```
 
 #### Build for VS2015 (`ARCH=x86` by default)
 
 ```shell
-cmake -D_BUILD=ON -DPLATFORM=vs2015 -P arcbuild.cmake
+cmake -DPLATFORM=vs2015 -P arcbuild.cmake
 ```
 
 #### Build for Linux (`ARCH=x86` by default)
 
 ```shell
-cmake -D_BUILD=ON -DPLATFORM=linux -P arcbuild.cmake
+cmake -DPLATFORM=linux -P arcbuild.cmake
 ```
 
 #### Build for iOS (`ARCH="armv7;armv7s;arm64"` by default)
 
 ```shell
-cmake -D_BUILD=ON -DPLATFORM=ios -P arcbuild.cmake
+cmake -DPLATFORM=ios -P arcbuild.cmake
 ```
 
 

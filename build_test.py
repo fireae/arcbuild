@@ -7,7 +7,6 @@ import sys
 
 def build(platform, root=None, source_dir=None, binary_dir=None, suffix=None):
     args =[
-        '-D_BUILD=ON',
         '-DPLATFORM=%s' % platform,
         '-DTYPE=SHARED',
         '-DVERBOSE=3',
