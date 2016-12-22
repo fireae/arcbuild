@@ -137,6 +137,20 @@ function(arcbuild_get_vc_env_run var_name root arch)
   endif()
 endfunction()
 
+function(arcbuild_get_make_targets var_name make_cmd work_dir)
+  execute_process(
+    COMMAND ${make_cmd} help
+    WORKING_DIRECTORY "${work_dir}"
+    RESULT_VARIABLE ret
+    OUTPUT_VARIABLE output
+    ERROR_QUIET
+  )
+  string(REGEX MATCHALL "\\.\\.\\. ([^ \r\n]+)" targets "${output}")
+  string(REPLACE "... " ";" targets "${targets}")
+  string(STRIP "${targets}" targets)
+  set(${var_name} ${target} PARENT_SCOPE)
+endfunction()
+
 function(arcbuild_download_cmake var_name)
   if(CMAKE_COMMAND MATCHES "\\.exe$")
     set(url "https://cmake.org/files/v3.7/cmake-3.7.1-win32-x86.zip")
@@ -364,7 +378,7 @@ function(arcbuild_build)
   endforeach()
 
   ##############################
-  # Build and pack
+  # Generate, build and pack
 
   get_filename_component(SOURCE_DIR "${SOURCE_DIR}" ABSOLUTE)
   get_filename_component(BINARY_DIR "${BINARY_DIR}" ABSOLUTE)
@@ -379,7 +393,7 @@ function(arcbuild_build)
     file(REMOVE "${zips}")
   endif()
 
-  # Build
+  # Generate Makfiles
   if(NOT MAKE_PROGRAM)
     set(MAKE_PROGRAM "make")
   endif()
@@ -389,12 +403,7 @@ function(arcbuild_build)
     arcbuild_warn("Use CMake: ${CMAKE_CMD}")
   endif()
   set(MAKE_CMD ${MAKE_PROGRAM})
-  if(NOT MAKE_CMD MATCHES "nmake")
-    list(APPEND MAKE_CMD "-j4") # speed up building
-  endif()
   if(VC_ENV_RUN)
-    list(GET VC_ENV_RUN 0 VCVARS_BAT)
-    list(GET VC_ENV_RUN 1 VC_ARCH)
     list(INSERT CMAKE_CMD 0 ${VC_ENV_RUN} &&)
     list(INSERT MAKE_CMD 0 ${VC_ENV_RUN} &&)
   endif()
@@ -412,10 +421,20 @@ function(arcbuild_build)
     arcbuild_error("Makefiles generation failed!")
   endif()
 
-  # Pack
+  # Build and pack
   arcbuild_echo("Making SDK ...")
+  arcbuild_get_make_targets(MAKE_TARGETS ${MAKE_CMD} ${BINARY_DIR})
+  if(NOT MAKE_CMD MATCHES "nmake")
+    list(APPEND MAKE_CMD "-j4") # speed up building
+  endif()
+  list(FIND MAKE_TARGETS "package" ret)
+  if(ret EQUAL -1)
+    set(make_target "all")
+  else()
+    set(make_target "package")
+  endif()
   execute_process(
-    COMMAND ${MAKE_CMD} package
+    COMMAND ${MAKE_CMD}  ${make_target}
     WORKING_DIRECTORY "${BINARY_DIR}"
     RESULT_VARIABLE ret
   )
