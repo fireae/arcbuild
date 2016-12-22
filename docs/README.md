@@ -26,6 +26,40 @@ STL             # reserved
 ```
 
 
+## Help for `arcbuild_enable_features()`
+
+Usage:
+```cmake
+# Enable arcbuild functions
+include(arcbuild.cmake)
+arcbuild_enable_features(cxx11 neon sse2 hidden)
+```
+
+Supported Features:
+
+```cmake
+cxx11       # Enable C++11
+neon        # Enable NEON if supported
+sse         # Enable SSE if supported
+sse2/sse3/sse4
+hidden      # Hides most of the ELF symbols, see https://gcc.gnu.org/wiki/Visibility
+```
+
+
+## Add `mpbase` Dependency
+
+Usage:
+
+```cmake
+# Add mpbase dependency if needed
+include(${ARCBUILD_DIR}/mpbase.cmake)
+target_link_libraries(arcsoft_xxx mpbase)
+```
+
+Please version of `mpbase` will be selected automatically w.r.t. target platform, architecture and target type.
+
+
+
 ## Arguments for `arcbuild_define_arcsoft_sdk()`
 
 This `CMake` function define ArcSoft SDK information which is used by build system when calling `cmake -P arcbuild.cmake`.
