@@ -1,16 +1,21 @@
 
 ## Arguments for `cmake -P arcbuild.cmake`
 
+All the following arguments MUST be added before `-P`.
+
 ```cmake
-_BUILD          # MUST BE "ON"
-TYPE            # type of target library, "static" or "shared", "shared" by default
+_BUILD          # [REQUIRED] MUST be "ON".
+
+TYPE            # [REQUIRED] type of target library, "static" or "shared", "shared" by default.
 PLATFORM        # target platform, e.g. android, ios, vs2015, etc.
 ARCH            # target architectures, e.g. armv7-a, "armv7;armv7s;arm64", etc.
-ROOT            # root directory of SDK or empty. e.g. "E:\NDK\android-ndk-r11b", default is empty.
-BUILD_TYPE      # build configure in "Debug|Release|MinSizeRel|RelWithDebInfo", default is "Release"
-API_VERSION     # SDK API version, e.g. android-9, default is empty.
+BUILD_TYPE      # build configure in "Debug|Release|MinSizeRel|RelWithDebInfo", default is "Release".
+MAKE_TARGET     # target when calling "make <target>".
+
 MAKE_PROGRAM    # path of "make" program, usually is searched automatically.
 TOOLCHAIN_FILE  # toolchain file for CMake, usually is set automatically.
+ROOT            # root directory of SDK or empty. e.g. "E:\NDK\android-ndk-r11b", default is empty.
+API_VERSION     # SDK API version, e.g. android-9, default is empty.
 VERBOSE         # level of output, see [Verbose Level](#verbose-level).
 
 C_FLAGS         # compile flags for C compiler.

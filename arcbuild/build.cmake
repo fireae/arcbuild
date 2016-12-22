@@ -479,14 +479,21 @@ function(arcbuild_build)
   endif()
 
   # Build and pack
-  arcbuild_get_make_targets(MAKE_TARGETS "${MAKE_CMD}" ${BINARY_DIR})
-  list(FIND MAKE_TARGETS "package" ret)
-  if(ret EQUAL -1)
-    set(make_target "all")
+  arcbuild_get_make_targets(ALL_MAKE_TARGETS "${MAKE_CMD}" ${BINARY_DIR})
+  if(NOT MAKE_TARGET)
+    list(FIND ALL_MAKE_TARGETS "package" ret)
+    if(ret EQUAL -1)
+      set(MAKE_TARGET "all")
+    else()
+      set(MAKE_TARGET "package")
+    endif()
   else()
-    set(make_target "package")
+    list(FIND ALL_MAKE_TARGETS "${MAKE_TARGET}" ret)
+    if(ret EQUAL -1)
+      arcbuild_error("The make target (${MAKE_TARGET}) is not found!")
+    endif()
   endif()
-  arcbuild_echo("Make target: ${make_target}")
+  arcbuild_echo("Make target: ${MAKE_TARGET}")
 
   if(NOT MAKE_CMD MATCHES "nmake")
     list(APPEND MAKE_CMD "-j4") # speed up building
@@ -494,7 +501,7 @@ function(arcbuild_build)
 
   arcbuild_echo("Making SDK ...")
   execute_process(
-    COMMAND ${MAKE_CMD} ${make_target}
+    COMMAND ${MAKE_CMD} ${MAKE_TARGET}
     WORKING_DIRECTORY "${BINARY_DIR}"
     RESULT_VARIABLE ret
   )
