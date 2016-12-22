@@ -250,10 +250,12 @@ function(arcbuild_build)
   if(NOT VERBOSE)
     set(VERBOSE 2)
   endif()
+  arcbuild_set_from_short_var(ARCBUILD VERBOSE)
+
   if(VERBOSE GREATER 3)
+    arcbuild_echo("Enable verbose Makefiles")
     set(VERBOSE_MAKEFILE 1)
   endif()
-  arcbuild_set_from_short_var(ARCBUILD VERBOSE)
 
   arcbuild_echo("--------------------------")
   arcbuild_echo("--*-- START building --*--")
@@ -434,6 +436,7 @@ function(arcbuild_build)
   endif()
   set(MAKE_CMD ${MAKE_PROGRAM})
   if(VC_ENV_RUN)
+    list(APPEND MAKE_CMD "/NOLOGO")
     list(INSERT CMAKE_CMD 0 ${VC_ENV_RUN} &&)
     list(INSERT MAKE_CMD 0 ${VC_ENV_RUN} &&)
   endif()
@@ -476,7 +479,7 @@ function(arcbuild_build)
   endif()
 
   # Build and pack
-  arcbuild_get_make_targets(MAKE_TARGETS ${MAKE_CMD} ${BINARY_DIR})
+  arcbuild_get_make_targets(MAKE_TARGETS "${MAKE_CMD}" ${BINARY_DIR})
   list(FIND MAKE_TARGETS "package" ret)
   if(ret EQUAL -1)
     set(make_target "all")
@@ -491,7 +494,7 @@ function(arcbuild_build)
 
   arcbuild_echo("Making SDK ...")
   execute_process(
-    COMMAND ${MAKE_CMD}  ${make_target}
+    COMMAND ${MAKE_CMD} ${make_target}
     WORKING_DIRECTORY "${BINARY_DIR}"
     RESULT_VARIABLE ret
   )
