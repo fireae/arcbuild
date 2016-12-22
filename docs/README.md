@@ -35,7 +35,7 @@ if(ARCBUILD) # defined when calling "cmake -P arcbuild.cmake"
   arcbuild_define_arcsoft_sdk(
     arcsoft_xxx             # SDK name
     LIBRARY arcsoft_xxx     # SDK main library
-    INCS inc/*.h            # SDK headers
+    INCS inc/*.h            # SDK headers ("*" for globbing and "**" for recursive globbing)
     VERSION_FILE src/version.c # SDK version file
     SAMPLE_CODE samplecodes/samplecode.c # SDK sample code
     RELEASE_NOTES releasenotes.txt # SDK release notes

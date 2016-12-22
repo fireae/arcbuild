@@ -200,6 +200,7 @@ function(arcbuild_update_version_file name path version)
   set_target_properties(${name} PROPERTIES SOURCES "${sources}")
 endfunction()
 
+
 function(arcbuild_get_compile_flags var_name name)
   string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE)
   set(flags "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS} ${CMAKE_C_FLAGS_${CMAKE_BUILD_TYPE}} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}}")
@@ -225,6 +226,7 @@ function(arcbuild_get_compile_flags var_name name)
   set(${var_name} ${flags} PARENT_SCOPE)
 endfunction()
 
+
 function(arcbuild_update_releasenotes name new_path path version)
   arcbuild_get_compile_flags(flags ${name})
   arcbuild_echo("Compile flags: ${flags}")
@@ -242,6 +244,7 @@ function(arcbuild_update_releasenotes name new_path path version)
   string(REGEX REPLACE "(Compile Option:[ \r\n]+)[^\r\n]+" "\\1${flags}" content "${content}")
   file(WRITE ${new_path} "${content}")
 endfunction()
+
 
 function(arcbuild_get_version_from_release_notes path vv_major vv_minor vv_build)
   file(READ "${path}" content)
@@ -312,7 +315,11 @@ function(arcbuild_define_arcsoft_sdk sdk_name)
     ${ARGN}
   )
 
-  file(GLOB A_INCS ${A_INCS})
+  if(A_INCS MATCHES "\\*\\*")
+    file(GLOB_RECURSE A_INCS ${A_INCS})
+  elseif(A_INCS MATCHES "\\*")
+    file(GLOB A_INCS ${A_INCS})
+  endif()
 
   if(NOT A_LIBRARY)
     set(A_LIBRARY ${sdk_name})
