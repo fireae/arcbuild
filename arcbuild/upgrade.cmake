@@ -5,8 +5,7 @@ function(arcbuild_echo)
   message(STATUS "ARCBUILD [I] ${ARGN}")
 endfunction()
 
-function(arcbuild_upgrade target_dir)
-  set(url_root "http://172.17.10.213/lny1856/arcbuild2/raw/master")
+function(arcbuild_upgrade url_root target_dir)
   arcbuild_echo("Upgrading arcbuild to: ${target_dir} ...")
   foreach(name
 arcsoft_sdk.cmake
