@@ -55,9 +55,9 @@ cmake -DPLATFORM=ios -P arcbuild.cmake
 
 ## Example Projects
 
-- [hello_world](examples/hello_world) CMake "Hello world" project.
-- [local_arcbuild](examples/local_arcbuild): project with local `arcbuild.cmake` and latest build scripts will be download when `_arbuild` directory does not existed.
-- [combine_modules](examples/combine_modules): Combine multiple modules into one when compiling SDK.
+- [hello_world](examples/hello_world): CMake "Hello world" project.
+- [local_arcbuild](examples/local_arcbuild): project with local `arcbuild.cmake`.
+- [combine_modules](examples/combine_modules): Combine multiple modules into one when building SDK.
 
 
 ## Upgrade
