@@ -26,7 +26,7 @@ Easy native and cross compiling for CMake projects.
 
 More documents will be found in [docs](docs/README.md).
 
-### Build SDK
+### Building Examples
 
 #### Build for Android (`ARCH=armv7-a` by default)
 
