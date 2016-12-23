@@ -4,17 +4,17 @@
 All the following arguments MUST be added before `-P`.
 
 ```cmake
-TYPE            # [REQUIRED] type of target library, "static" or "shared", "shared" by default.
-PLATFORM        # target platform, e.g. android, ios, vs2015, etc.
+PLATFORM        # [REQUIRED] target platform, e.g. android, ios, vs2015, etc.
 ARCH            # target architectures, e.g. armv7-a, "armv7;armv7s;arm64", etc.
+TYPE            # type of target library, "static" or "shared", "shared" by default.
 BUILD_TYPE      # build configure in "Debug|Release|MinSizeRel|RelWithDebInfo", default is "Release".
 MAKE_TARGET     # target when calling "make <target>".
-
-MAKE_PROGRAM    # path of "make" program, usually is searched automatically.
-TOOLCHAIN_FILE  # toolchain file for CMake, usually is set automatically.
-ROOT            # root directory of SDK or empty. e.g. "E:\NDK\android-ndk-r11b", default is empty.
-API_VERSION     # SDK API version, e.g. android-9, default is empty.
 VERBOSE         # level of output, see [Verbose Level](#verbose-level).
+
+ROOT            # root directory of SDK or empty. e.g. "E:\NDK\android-ndk-r11b", default is empty.
+TOOLCHAIN_FILE  # toolchain file for CMake, usually is set automatically.
+API_VERSION     # SDK API version, e.g. android-9, default is empty.
+MAKE_PROGRAM    # path of "make" program, usually is searched automatically.
 
 C_FLAGS         # compile flags for C compiler.
 CXX_FLAGS       # compile flags for C++ compiler.
@@ -22,6 +22,9 @@ LINK_FLAGS      # linker flags.
 
 CUSTOMER        # SDK customer, add "_FOR_<CUSTOMER>" in package name.
 SUFFIX          # add this suffix to package name.
+
+SOURCE_DIR      # the path of CMake project, default is ".".
+BINARY_DIR      # the path to the build tree, default is "_build".
 
 # Following arguments are unstable.
 SDK             # reserved
@@ -72,8 +75,15 @@ include(${ARCBUILD_DIR}/mpbase.cmake)
 target_link_libraries(arcsoft_xxx mpbase)
 ```
 
-Please version of `mpbase` will be selected automatically w.r.t. target platform, architecture and target type.
+The version of `mpbase` will be selected automatically w.r.t. target platform, architecture and target type.
 
+### Arguments for `mpbase`
+
+```cmake
+MPBASE_DIR      # The path to given version, e.g. "/home/mpbase/0.1.0.4/android_armv7-a"
+MPBASE_ROOT     # The path to root directory, e.g. "/home/mpbase"
+MPBASE_VERSION  # version name, e.g. "0.1.0.4/android_armv7-a"
+```
 
 
 ## Arguments for `arcbuild_define_arcsoft_sdk()`

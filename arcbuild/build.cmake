@@ -55,6 +55,7 @@ function(arcbuil_add_to_env_path)
 endfunction()
 
 function(arcbuild_get_toolchain var_name platform)
+  unset(path)
   if(platform STREQUAL "android")
     set(path "android-ndk.cmake")
   elseif(platform MATCHES "^ios")
@@ -64,12 +65,11 @@ function(arcbuild_get_toolchain var_name platform)
   elseif(platform MATCHES "^tizen")
     set(path "tizen1.0.cmake")
   endif()
-  if(path)
-    set(${var_name} ${path} PARENT_SCOPE)
-  endif()
+  set(${var_name} ${path} PARENT_SCOPE)
 endfunction()
 
 function(arcbuild_get_make_program var_name platform root)
+  unset(path)
   if(platform STREQUAL "android")
     file(GLOB path "${root}/prebuilt/*/bin/make*")
   elseif(platform MATCHES "^tizen")
@@ -79,11 +79,12 @@ function(arcbuild_get_make_program var_name platform root)
   endif()
   if(path)
     get_filename_component(path "${path}" ABSOLUTE)
-    set(${var_name} ${path} PARENT_SCOPE)
   endif()
+  set(${var_name} ${path} PARENT_SCOPE)
 endfunction()
 
 function(arcbuild_get_vc_root var_name sdk)
+  unset(path)
   if(sdk STREQUAL "vs2012")
     set(version 11)
   elseif(sdk STREQUAL "vs2013")
@@ -108,6 +109,7 @@ function(arcbuild_get_vc_root var_name sdk)
 endfunction()
 
 function(arcbuild_get_vc_env_run var_name root arch)
+  unset(path)
   if(DEFINED ENV{ProgramW6432})
     if(arch STREQUAL "arm")
       set(arch "amd64_arm")
@@ -209,9 +211,9 @@ function(arcbuild_download_cmake var_name)
 endfunction()
 
 function(arcbuild_search_ndk_stl var_name build_dir)
+  unset(all_matched)
   arcbuild_debug("Searching build.make in ${build_dir} ...")
   file(GLOB_RECURSE build_cmake_paths "${build_dir}/CMakeFiles/*/build.make")
-  set(all_matched)
   foreach(path ${build_cmake_paths})
     arcbuild_debug("- Matching ${path} ...")
     file(READ "${path}" content)
@@ -229,9 +231,28 @@ function(arcbuild_search_ndk_stl var_name build_dir)
     if(${len} GREATER 1)
       arcbuild_error("More than one type of STL is used: ${all_matched}")
     endif()
-    set(${var_name} ${all_matched} PARENT_SCOPE)
   endif()
+  set(${var_name} ${all_matched} PARENT_SCOPE)
 endfunction()
+
+function(arcbuild_remove_cmake_arguments var_name arguments)
+  foreach(name ${ARGN})
+    # set(searched_str "-D${name}=")
+    # message(${searched_str})
+    # string(FIND "${AGRN}" ${searched_str} ret)
+    # if(ret EQUAL -1)
+    #   continue()
+    # endif()
+    foreach(arg ${arguments})
+      if(arg MATCHES "^\\-D${name}=")
+        list(REMOVE_ITEM arguments ${arg})
+        break()
+      endif()
+    endforeach()
+  endforeach()
+  set(${var_name} ${arguments} PARENT_SCOPE)
+endfunction()
+
 
 function(arcbuild_build)
   ##############################
@@ -348,8 +369,17 @@ function(arcbuild_build)
 
   ##############################
   # Print information
+  set(ARGUMENTS PLATFORM ARCH TYPE BUILD_TYPE MAKE_TARGET VERBOSE
+                ROOT TOOLCHAIN_FILE API_VERSION MAKE_PROGRAM
+                C_FLAGS CXX_FLAGS LINK_FLAGS
+                CUSTOMER SUFFIX
+                SOURCE_DIR BINARY_DIR
+                SDK STL)
+
+  # Remove processed arguments
+  arcbuild_remove_cmake_arguments(remained_args "${ARGN}" ${ARGUMENTS})
   arcbuild_echo("Building information:")
-  foreach(name PLATFORM SDK SOURCE_DIR BINARY_DIR CMAKE_GENERATOR VC_ENV_RUN)
+  foreach(name ${ARGUMENTS} CMAKE_GENERATOR VC_ENV_RUN ${remained_args})
     if(${name})
       arcbuild_echo("- ${name}: ${${name}}")
     endif()
@@ -394,17 +424,8 @@ function(arcbuild_build)
     CMAKE_TOOLCHAIN_FILE
     CMAKE_MAKE_PROGRAM
     CMAKE_VERBOSE_MAKEFILE
-
-    MPBASE_DIR
-    MPBASE_ROOT
-    MPBASE_VERSION
     )
     if(${name})
-      string(FIND ${name} "_" underline_pos)
-      math(EXPR underline_pos "${underline_pos}+1")
-      string(SUBSTRING ${name} ${underline_pos} -1 short_name)
-      # string(REGEX REPLACE "^[A-Z]+_" "" short_name "${name}")
-      arcbuild_echo("- ${short_name}: ${${name}}")
       list(APPEND cmake_args "-D${name}=${${name}}")
     endif()
   endforeach()
@@ -413,7 +434,7 @@ function(arcbuild_build)
   # Generate, build and pack
 
   if(VERBOSE EQUAL 0)
-    set(execute_extra_args OUTPUT_QUIET)
+    list(APPEND remained_args OUTPUT_QUIET)
   endif()
 
   get_filename_component(SOURCE_DIR "${SOURCE_DIR}" ABSOLUTE)
@@ -454,7 +475,7 @@ function(arcbuild_build)
     ${cmake_args}
     WORKING_DIRECTORY "${BINARY_DIR}"
     RESULT_VARIABLE ret
-    ${execute_extra_args}
+    ${remained_args}
   )
   if(NOT ret EQUAL 0)
     arcbuild_error("Makefiles generation failed!")
@@ -476,7 +497,7 @@ function(arcbuild_build)
         ${cmake_args}
         WORKING_DIRECTORY "${BINARY_DIR}"
         RESULT_VARIABLE ret
-        ${execute_extra_args}
+        ${remained_args}
       )
       if(NOT ret EQUAL 0)
         arcbuild_error("Makefiles generation failed!")
@@ -510,7 +531,7 @@ function(arcbuild_build)
     COMMAND ${MAKE_CMD} ${MAKE_TARGET}
     WORKING_DIRECTORY "${BINARY_DIR}"
     RESULT_VARIABLE ret
-    ${execute_extra_args}
+    ${remained_args}
   )
   if(NOT ret EQUAL 0)
     arcbuild_error("SDK packing failed!")
