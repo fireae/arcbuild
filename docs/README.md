@@ -25,10 +25,6 @@ LINK_FLAGS      # linker flags.
 SOURCE_DIR      # the path of CMake project, default is ".".
 BINARY_DIR      # the path to the build tree, default is "_build".
 
-# Short names for SDK building, usually not used.
-CUSTOMER        # SDK customer, add "_FOR_<CUSTOMER>" in package name.
-SUFFIX          # add this suffix to package name.
-
 # Following arguments are unstable.
 SDK             # reserved
 STL             # reserved

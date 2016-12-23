@@ -261,15 +261,6 @@ function(arcbuild_build)
   ##############################
   # Parse arguments
 
-  # Read from environment variables
-  # arcbuild_set_from_env(ARCBUILD_TYPE ARCBUILD_PLATFORM ARCBUILD_SDK ARCBUILD_VERSION ARCBUILD_SUFFIX)
-  # arcbuild_set_from_env(SDK_ROOT SDK_ARCH SDK_API_VERSION)
-  # arcbuild_set_from_env(MPABSE_DIR MPABSE_ROOT MPABSE_VERSION)
-
-  # Write to short variables
-  # arcbuild_set_to_short_var(ARCBUILD TYPE PLATFORM SDK VERBOSE)
-  # arcbuild_set_to_short_var(SDK ROOT ARCH API_VERSION STL)
-
   # Verbose
   if(NOT DEFINED VERBOSE)
     set(VERBOSE 2)
@@ -375,7 +366,6 @@ function(arcbuild_build)
   set(ARGUMENTS PLATFORM ARCH TYPE BUILD_TYPE MAKE_TARGET VERBOSE
                 ROOT TOOLCHAIN_FILE API_VERSION MAKE_PROGRAM
                 C_FLAGS CXX_FLAGS LINK_FLAGS
-                CUSTOMER SUFFIX
                 SOURCE_DIR BINARY_DIR
                 SDK STL)
 
@@ -389,7 +379,7 @@ function(arcbuild_build)
   endforeach()
 
   # Set from short variables
-  arcbuild_set_from_short_var(ARCBUILD TYPE PLATFORM SDK VERBOSE SUFFIX CUSTOMER)
+  arcbuild_set_from_short_var(ARCBUILD TYPE PLATFORM SDK VERBOSE)
   arcbuild_set_from_short_var(SDK ROOT ARCH API_VERSION STL)
   arcbuild_set_from_short_var(CMAKE TOOLCHAIN_FILE MAKE_PROGRAM VERBOSE_MAKEFILE C_FLAGS CXX_FLAGS BUILD_TYPE)
 
@@ -410,8 +400,6 @@ function(arcbuild_build)
   foreach(name
     ARCBUILD_VERBOSE
     ARCBUILD_TYPE
-    ARCBUILD_SUFFIX
-    ARCBUILD_CUSTOMER
 
     SDK_ROOT
     SDK_ARCH
