@@ -1,6 +1,4 @@
-# Documents of ArcBuild
-
-- [ArcSoft SDK Building](ArcSoftSDKBuilding.md)
+# Documents of arcbuild
 
 
 ## Arguments for `cmake -P arcbuild.cmake`

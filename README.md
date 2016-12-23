@@ -13,7 +13,6 @@ Easy native and cross compiling for CMake projects.
 - Support to combine multiple modules into one library automatically. It's useful when building static library for SDK delivery.
 - Support NDK STL for Android (`system`, `gabi++`, `stlport` and `gnulstl`) by two-pass generation of Makefiles.
 
-It's easy to extend the script to support custom SDK building, e.g. [ArcSoft SDK Building](docs/ArcSoftSDKBuilding.md).
 
 ## Dependencies
 
@@ -61,7 +60,6 @@ cmake -DPLATFORM=ios -P arcbuild.cmake
 - [hello_world](examples/hello_world) CMake "Hello world" project.
 - [local_arcbuild](examples/local_arcbuild): project with local `arcbuild.cmake` and latest build scripts will be download when `_arbuild` directory does not existed.
 - [combine_modules](examples/combine_modules): Combine multiple modules into one when compiling SDK.
-- [arcsoft_sdk](examples/arcsfot_sdk): simple ArcSoft SDK with mpbase dependency
 
 
 ## Upgrade

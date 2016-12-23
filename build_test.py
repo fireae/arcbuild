@@ -67,10 +67,10 @@ def main():
         os.chdir(old_dir)
 
     # total_sdk_build = len(examples) * len(platforms)
-    total_sdk_build = len(platforms)
-    total_sdk_pkg = len(glob.glob('*.zip'))
-    if total_sdk_pkg != total_sdk_build:
-        raise Exception("The number of SDK's (%d) is not correct (%d)!" % (total_sdk_pkg, total_sdk_build))
+    # total_sdk_build = len(platforms)
+    # total_sdk_pkg = len(glob.glob('*.zip'))
+    # if total_sdk_pkg != total_sdk_build:
+    #     raise Exception("The number of SDK's (%d) is not correct (%d)!" % (total_sdk_pkg, total_sdk_build))
 
 if __name__ == '__main__':
     try:

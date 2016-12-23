@@ -1,3 +1,6 @@
+# The MIT License (MIT)
+# Copyright © 2016 Naiyang Lin <maxint@foxmail.com>
+
 # Prepare ARCBUILD_ROOT_DIR and ARCBUILD_DIR
 if(NOT ARCBUILD_ROOT_DIR)
   set(ARCBUILD_ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}")
