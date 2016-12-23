@@ -21,7 +21,7 @@ target_link_libraries(arcsoft_xxx mpbase)
 
 The version of `mpbase` will be selected automatically w.r.t. target platform, architecture and target type.
 
-### Arguments for `mpbase`
+#### Arguments for `mpbase` when calling `cmake -P arcbuild.cmake`
 
 ```cmake
 MPBASE_DIR      # The path to given version, e.g. "/home/mpbase/0.1.0.4/android_armv7-a"
