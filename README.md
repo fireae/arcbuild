@@ -5,8 +5,6 @@ Easy native and cross compiling for CMake projects.
 
 ## Features
 
-### For Noraml CMake Projects
-
 - Integration is light! Only need to add ONLY ONE file (`arcbuild.cmake`) to your CMake project.
 - Pure CMake scripts and no other dependencies.
 - Support major platforms and system architectres, e.g. `windows`, `linux`, `android`, `ios`, `tizen`, etc.
