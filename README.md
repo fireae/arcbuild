@@ -5,7 +5,6 @@ Easy native and cross compiling for CMake projects.
 
 ## Features
 
-- Integration is light! Only need to add ONLY ONE file (`arcbuild.cmake`) to your CMake project.
 - Pure CMake scripts and no other dependencies.
 - Support major platforms and system architectres, e.g. `windows`, `linux`, `android`, `ios`, `tizen`, etc.
 - Support to combine multiple modules into one library automatically. It's useful when building static library for SDK delivery.
@@ -21,8 +20,8 @@ Easy native and cross compiling for CMake projects.
 
 ## Usage
 
-1. Download `arcbuild.cmake` to root directory of your CMake project.
-2. Build SDK by runing `cmake -P arcbuild.cmake`.
+1. Download `arcbuild.cmake` or whole project.
+2. Build your project by runing `cmake -P arcbuild.cmake`.
 3. More documents will be found in [docs](docs/README.md).
 
 ### Building Examples
