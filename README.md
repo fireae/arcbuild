@@ -23,8 +23,7 @@ Easy native and cross compiling for CMake projects.
 
 1. Download `arcbuild.cmake` to root directory of your CMake project.
 2. Build SDK by runing `cmake -P arcbuild.cmake`.
-
-More documents will be found in [docs](docs/README.md).
+3. More documents will be found in [docs](docs/README.md).
 
 ### Building Examples
 
@@ -55,9 +54,9 @@ cmake -DPLATFORM=ios -P arcbuild.cmake
 
 ## Example Projects
 
-- [hello_world](examples/hello_world): CMake "Hello world" project.
+- [hello_world](examples/hello_world): "Hello world" project.
 - [local_arcbuild](examples/local_arcbuild): project with local `arcbuild.cmake`.
-- [combine_modules](examples/combine_modules): Combine multiple modules into one when building SDK.
+- [combine_modules](examples/combine_modules): combine multiple modules into one when building SDK.
 
 
 ## Upgrade
