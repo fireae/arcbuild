@@ -1,4 +1,6 @@
-# author: maxint <NOT_SPAM_lnychina@gmail.com>
+# The MIT License (MIT)
+# Copyright © 2016 Naiyang Lin <maxint@foxmail.com>
+#
 # Find the given version gcc/g++ in PATH
 #
 # Supported (environment) variables:

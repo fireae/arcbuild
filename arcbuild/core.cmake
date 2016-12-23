@@ -1,3 +1,6 @@
+# The MIT License (MIT)
+# Copyright © 2016 Naiyang Lin <maxint@foxmail.com>
+
 include(CMakeParseArguments)
 
 option(ARCBUILD_VERBOSE ${ARCBUILD_VERBOSE} "Verbose output of arcbuild")

@@ -1,3 +1,6 @@
+# The MIT License (MIT)
+# Copyright © 2016 Naiyang Lin <maxint@foxmail.com>
+
 include(${ARCBUILD_DIR}/core.cmake)
 
 

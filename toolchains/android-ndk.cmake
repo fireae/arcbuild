@@ -1,3 +1,5 @@
+# The MIT License (MIT)
+# Copyright © 2016 Naiyang Lin <maxint@foxmail.com>
 #
 # Android NDK toolchain file for CMake
 #

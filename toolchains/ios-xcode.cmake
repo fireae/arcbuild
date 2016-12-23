@@ -1,6 +1,5 @@
-# Copyright (C) 2014 maxint <NOT_SPAM_lnychina@gmail.com>
-#
-# Distributed under terms of the MIT license.
+# The MIT License (MIT)
+# Copyright © 2016 Naiyang Lin <maxint@foxmail.com>
 #
 # Options:
 #

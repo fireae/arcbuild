@@ -1,3 +1,6 @@
+# The MIT License (MIT)
+# Copyright © 2016 Naiyang Lin <maxint@foxmail.com>
+
 function(arcbuild_get_file_list var_name root)
   file(GLOB names LIST_DIRECTORIES true RELATIVE "${root}" "${root}/*" )
   set(prefix ${ARGN})

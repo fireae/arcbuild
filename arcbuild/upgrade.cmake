@@ -1,3 +1,6 @@
+# The MIT License (MIT)
+# Copyright © 2016 Naiyang Lin <maxint@foxmail.com>
+
 function(arcbuild_echo)
   message(STATUS "ARCBUILD [I] ${ARGN}")
 endfunction()
