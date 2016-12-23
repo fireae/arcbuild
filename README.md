@@ -1,6 +1,6 @@
-# Easy Cross Compiling for CMake Projects
+# ArcBuild
 
-Pure CMake scripts for native and cross compiling building.
+Easy native and cross compiling for CMake projects.
 The previous version is [arcbuild](http://172.17.10.213/lny1856/arcbuild).
 
 
