@@ -2,19 +2,19 @@ cmake_minimum_required(VERSION 2.8.12)
 
 project(CombineMultipleModules)
 
-## Modules
+# Modules
 add_subdirectory(modules)
 
-## Library
+# Library
 file(GLOB_RECURSE HDRS inc/*.h)
 file(GLOB_RECURSE SRCS src/*.h src/*.c src/*.cpp)
 add_library(arcsoft_xxx ${ARCBUILD_TYPE} ${HDRS} ${SRCS})
 target_include_directories(arcsoft_xxx PUBLIC inc)
 target_link_libraries(arcsoft_xxx bar)
 
-## Sample codes
-add_executable(samplecode samplecodes/samplecode.c)
-target_link_libraries(samplecode arcsoft_xxx)
+# Sample codes
+add_executable(demo demo/demo.c)
+target_link_libraries(demo arcsoft_xxx)
 
 # Enable arcbuild functions
 include(../../arcbuild.cmake)
