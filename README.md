@@ -12,7 +12,7 @@ The previous version is [arcbuild](http://172.17.10.213/lny1856/arcbuild).
 - Pure CMake scripts and no other dependencies.
 - Support major platforms and system architectres, e.g. `win32`, `linux`, `android`, `ios`, `tizen`, etc.
 - Support CMake library depended on multiple modules. All modules will be combined into one library automatically when building SDK.
-- Support NDK STL for Android (`system`, `gabi++`, `stlport` and `gnulstl`).
+- Support NDK STL for Android (`system`, `gabi++`, `stlport` and `gnulstl`) by two-pass generation of Makefiles.
 
 ### Extra Functions for ArcSoft SDK
 
