@@ -34,7 +34,7 @@ The `VERBOSE` argument controls the output level of build system.
 There are several levels as the following:
 
 ```cmake
-0 - quiet
+0 - quiet, only error
 1 - warning
 2 - information (default)
 3 - debug

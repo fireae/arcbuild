@@ -225,11 +225,6 @@ function(arcbuild_combine_target name)
     arcbuild_error("Fail to combine library. CMake>=3.0 is required (current: ${CMAKE_VERSION})!")
   endif()
 
-  # foreach(src ${new_all_sources})
-  #   message(${src})
-  # endforeach()
-
-
   list(REMOVE_DUPLICATES all_incs)
   set_target_properties(${name} PROPERTIES INCLUDE_DIRECTORIES "${all_incs}")
 

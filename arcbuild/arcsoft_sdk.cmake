@@ -366,8 +366,10 @@ function(arcbuild_define_arcsoft_sdk sdk_name)
 
   # Get version
   if(A_RELEASE_NOTES)
+    arcbuild_echo("Extracting version from ${A_RELEASE_NOTES}")
     arcbuild_get_version_from_release_notes(${A_RELEASE_NOTES} v_major v_minor v_build)
   elseif(A_VERSION_FILE)
+    arcbuild_echo("Extracting version from ${A_VERSION_FILE}")
     arcbuild_get_version_from_version_file(${A_VERSION_FILE} v_major v_minor v_build)
   endif()
   arcbuild_get_full_version(version ${v_major} ${v_minor} ${v_build})

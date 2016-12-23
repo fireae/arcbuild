@@ -247,7 +247,7 @@ function(arcbuild_build)
   # arcbuild_set_to_short_var(SDK ROOT ARCH API_VERSION STL)
 
   # Verbose
-  if(NOT VERBOSE)
+  if(NOT DEFINED VERBOSE)
     set(VERBOSE 2)
   endif()
   arcbuild_set_from_short_var(ARCBUILD VERBOSE)
@@ -412,6 +412,10 @@ function(arcbuild_build)
   ##############################
   # Generate, build and pack
 
+  if(VERBOSE EQUAL 0)
+    set(execute_extra_args OUTPUT_QUIET)
+  endif()
+
   get_filename_component(SOURCE_DIR "${SOURCE_DIR}" ABSOLUTE)
   # get_filename_component(BINARY_DIR "${BINARY_DIR}" ABSOLUTE)
   if(NOT IS_DIRECTORY "${BINARY_DIR}")
@@ -450,6 +454,7 @@ function(arcbuild_build)
     ${cmake_args}
     WORKING_DIRECTORY "${BINARY_DIR}"
     RESULT_VARIABLE ret
+    ${execute_extra_args}
   )
   if(NOT ret EQUAL 0)
     arcbuild_error("Makefiles generation failed!")
@@ -471,6 +476,7 @@ function(arcbuild_build)
         ${cmake_args}
         WORKING_DIRECTORY "${BINARY_DIR}"
         RESULT_VARIABLE ret
+        ${execute_extra_args}
       )
       if(NOT ret EQUAL 0)
         arcbuild_error("Makefiles generation failed!")
@@ -504,6 +510,7 @@ function(arcbuild_build)
     COMMAND ${MAKE_CMD} ${MAKE_TARGET}
     WORKING_DIRECTORY "${BINARY_DIR}"
     RESULT_VARIABLE ret
+    ${execute_extra_args}
   )
   if(NOT ret EQUAL 0)
     arcbuild_error("SDK packing failed!")
