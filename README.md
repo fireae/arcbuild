@@ -9,7 +9,7 @@ Easy native and cross compiling for CMake projects.
 
 - Integration is light! Only need to add ONLY ONE file (`arcbuild.cmake`) to your CMake project.
 - Pure CMake scripts and no other dependencies.
-- Support major platforms and system architectres, e.g. `win32`, `linux`, `android`, `ios`, `tizen`, etc.
+- Support major platforms and system architectres, e.g. `windows`, `linux`, `android`, `ios`, `tizen`, etc.
 - Support to combine multiple modules into one library automatically. It's useful when building static library for SDK delivery.
 - Support NDK STL for Android (`system`, `gabi++`, `stlport` and `gnulstl`) by two-pass generation of Makefiles.
 
