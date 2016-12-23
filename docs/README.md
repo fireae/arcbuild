@@ -22,11 +22,12 @@ C_FLAGS         # compile flags for C compiler.
 CXX_FLAGS       # compile flags for C++ compiler.
 LINK_FLAGS      # linker flags.
 
-CUSTOMER        # SDK customer, add "_FOR_<CUSTOMER>" in package name.
-SUFFIX          # add this suffix to package name.
-
 SOURCE_DIR      # the path of CMake project, default is ".".
 BINARY_DIR      # the path to the build tree, default is "_build".
+
+# Short names for SDK building, usally not used.
+CUSTOMER        # SDK customer, add "_FOR_<CUSTOMER>" in package name.
+SUFFIX          # add this suffix to package name.
 
 # Following arguments are unstable.
 SDK             # reserved
