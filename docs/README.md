@@ -25,7 +25,7 @@ LINK_FLAGS      # linker flags.
 SOURCE_DIR      # the path of CMake project, default is ".".
 BINARY_DIR      # the path to the build tree, default is "_build".
 
-# Short names for SDK building, usally not used.
+# Short names for SDK building, usually not used.
 CUSTOMER        # SDK customer, add "_FOR_<CUSTOMER>" in package name.
 SUFFIX          # add this suffix to package name.
 
@@ -48,7 +48,9 @@ There are several levels as the following:
 ```
 
 
-## Help for `arcbuild_enable_features()`
+## Function `arcbuild_enable_features()`
+
+This function is used to enable compiler flags of given features in uniform API instead of platform dependent settings.
 
 Usage:
 ```cmake
@@ -65,4 +67,15 @@ neon        # Enable NEON if supported
 sse         # Enable SSE if supported
 sse2/sse3/sse4
 hidden      # Hides most of the ELF symbols, see https://gcc.gnu.org/wiki/Visibility
+```
+
+## Function `arcbuild_combine_target()`
+
+This function is used to combine multiple targets into one, it's usually used for building of static SDK library.
+
+Usage:
+```cmake
+# Enable arcbuild functions
+include(arcbuild.cmake)
+arcbuild_combine_target(arcsoft_xxx)
 ```
