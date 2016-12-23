@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.12)
 
-project(SIMPLE_SDK)
+project(ArcSoft_SDK)
 
 if(NOT ARCBUILD_TYPE)
   set(ARCBUILD_TYPE SHARED)
@@ -20,8 +20,12 @@ target_link_libraries(samplecode arcsoft_xxx)
 include(../../arcbuild.cmake)
 arcbuild_enable_features(cxx11 neon sse2 hidden)
 
+# Add mpbase
+include(${ARCBUILD_DIR}/mpbase.cmake)
+target_link_libraries(arcsoft_xxx mpbase)
+
+# Define ArcSoft SDK
 if(ARCBUILD)
-  # Define ArcSoft SDK
   include(${ARCBUILD_DIR}/arcsoft_sdk.cmake)
   arcbuild_define_arcsoft_sdk(
     arcsoft_xxx

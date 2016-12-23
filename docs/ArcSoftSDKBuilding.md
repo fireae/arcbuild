@@ -1,5 +1,14 @@
 # ArcSoft SDK Building
 
+The following are extra functions for building ArcSoft SDK.
+
+- Extract version numbers from release notes.
+- Update version file with date, version numbers and platform number.
+- Generating meta informations in release notes, including publish date, version, platform, compile flags and file list.
+- Import `mpbase` prebuilt into your CMake project easily by adding `include(${ARCBUILD_DIR}/mpbase.cmake)`.
+- Install or pack SDK by `make install` and `make package` commands.
+
+
 ## Add `mpbase` Dependency
 
 Usage:

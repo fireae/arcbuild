@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.12)
 
-project(MULTIPLE_MODULES_SDK)
+project(CombineMultipleModules)
 
 ## Modules
 add_subdirectory(modules)
@@ -19,17 +19,7 @@ target_link_libraries(samplecode arcsoft_xxx)
 # Enable arcbuild functions
 include(../../arcbuild.cmake)
 arcbuild_enable_features(cxx11 neon sse2 hidden)
-
 if(ARCBUILD)
-  # Define ArcSoft SDK
-  include(${ARCBUILD_DIR}/arcsoft_sdk.cmake)
-  arcbuild_define_arcsoft_sdk(
-    arcsoft_xxx
-    LIBRARY arcsoft_xxx
-    INCS inc/*.h
-    VERSION_FILE src/version.c
-    SAMPLE_CODE samplecode
-    RELEASE_NOTES releasenotes.txt
-    DOCS doc/*.pdf
-  )
+  # Only combine the modules into one library when building SDK
+  arcbuild_combine_target(arcsoft_xxx)
 endif()

@@ -44,25 +44,26 @@ def main():
     shutil.rmtree('_build', ignore_errors=True)
 
     examples = os.listdir('examples')
-    examples.remove('local_arcbuild')
+    examples.remove('local')
 
     for name in examples:
         batch_build(platforms, root, 'examples/{0}'.format(name), '_build/{0}'.format(name), '_{0}'.format(name))
 
     old_dir = os.getcwd()
     try:
-        os.chdir('examples/local_arcbuild')
+        os.chdir('examples/local')
         shutil.copy('../../arcbuild.cmake', '.')
         map(os.remove, glob.glob('*.zip'))
         shutil.rmtree('_build', ignore_errors=True)
         shutil.rmtree('_arcbuild', ignore_errors=True)
-        batch_build(platforms, root, suffix='_local_arcbuild')
+        batch_build(platforms, root, suffix='_local')
         for path in glob.glob('*.zip'):
             shutil.copy(path, '../..')
     finally:
         os.chdir(old_dir)
 
-    total_sdk_build = len(examples) * len(platforms)
+    # total_sdk_build = len(examples) * len(platforms)
+    total_sdk_build = len(platforms)
     total_sdk_pkg = len(glob.glob('*.zip'))
     if total_sdk_pkg != total_sdk_build:
         raise Exception("The number of SDK's (%d) is not correct (%d)!" % (total_sdk_pkg, total_sdk_build))

@@ -1,7 +1,6 @@
 # ArcBuild
 
 Easy native and cross compiling for CMake projects.
-The previous version is [arcbuild](http://172.17.10.213/lny1856/arcbuild).
 
 
 ## Features
@@ -11,19 +10,10 @@ The previous version is [arcbuild](http://172.17.10.213/lny1856/arcbuild).
 - Integration is light! Only need to add ONLY ONE file (`arcbuild.cmake`) to your CMake project.
 - Pure CMake scripts and no other dependencies.
 - Support major platforms and system architectres, e.g. `win32`, `linux`, `android`, `ios`, `tizen`, etc.
-- Support CMake library depended on multiple modules. All modules will be combined into one library automatically when building SDK.
+- Support to combine multiple modules into one library automatically. It's useful when building static library for SDK delivery.
 - Support NDK STL for Android (`system`, `gabi++`, `stlport` and `gnulstl`) by two-pass generation of Makefiles.
 
-### Extra Functions for ArcSoft SDK
-
-- Extract version numbers from release notes.
-- Update version file with date, version numbers and platform number.
-- Generating meta informations in release notes, including publish date, version, platform, compile flags and file list.
-- Import `mpbase` prebuilt into your CMake project easily by adding `include(${ARCBUILD_DIR}/mpbase.cmake)`.
-- Install or pack SDK by `make install` and `make package` commands.
-
-Pleae check [ArcSoft SDK Building](docs/ArcSoftSDKBuilding.md) for more information.
-
+It's easy to extend the script to support custom SDK building, e.g. [ArcSoft SDK Building](docs/ArcSoftSDKBuilding.md).
 
 ## Dependencies
 
@@ -70,9 +60,8 @@ cmake -DPLATFORM=ios -P arcbuild.cmake
 
 - [hello_world](examples/hello_world) CMake "Hello world" project.
 - [local_arcbuild](examples/local_arcbuild): project with local `arcbuild.cmake` and latest build scripts will be download when `_arbuild` directory does not existed.
-- [simple_sdk](examples/simple_sdk): simple SDK without dependency
-- [simple_sdk_with_mpbase](examples/simple_sdk_with_mpbase): simple SDK with only mpbase dependency
-- [multiple_modules_sdk](examples/multiple_modules_sdk): SDK with multiple modules and no mpbase dependency
+- [combine_modules](examples/combine_modules): Combine multiple modules into one when compiling SDK.
+- [arcsoft_sdk](examples/arcsfot_sdk): simple ArcSoft SDK with mpbase dependency
 
 
 ## Upgrade
