@@ -1,4 +1,4 @@
-# CMake build scripts for ArcSoft SDK
+# Easy Cross Compiling for CMake Projects
 
 Pure CMake scripts for native and cross compiling building.
 The previous version is [arcbuild](http://172.17.10.213/lny1856/arcbuild).
